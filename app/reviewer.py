@@ -10,10 +10,11 @@ conf = get_conf()
 
 def review_tab():
     with gr.Tab("论文评审"):
+        # 页面标题
         gr.Markdown("# Paper Review")
         
         with gr.Row():
-            # 左侧列：上传PDF和进度
+            # 左侧列：上传控件
             with gr.Column(scale=1):
                 pdf_input = gr.File(
                     label="上传PDF文件",
@@ -23,7 +24,7 @@ def review_tab():
                 review_button = gr.Button("开始评审", variant="primary")
                 progress_output = gr.Markdown("准备就绪")
             
-            # 右侧列：显示评审结果
+            # 右侧列：结果显示
             with gr.Column(scale=2):
                 review_output = gr.Markdown()
                 copy_button = gr.Button("复制结果")
