@@ -303,12 +303,12 @@ def load_paper(pdf_path, num_pages=None, min_size=100):
     try:
         if num_pages is None:
             print("使用 pymupdf4llm 尝试加载全文...")
-            text = pymupdf4llm.to_markdown(pdf_path)
+            text = pymupdf4llm.to_markdown(pdf_path, encoding='utf-8')
         else:
             print(f"使用 pymupdf4llm 加载前 {num_pages} 页...")
             reader = PdfReader(pdf_path)
             min_pages = min(len(reader.pages), num_pages)
-            text = pymupdf4llm.to_markdown(pdf_path, pages=list(range(min_pages)))
+            text = pymupdf4llm.to_markdown(pdf_path, pages=list(range(min_pages)), encoding='utf-8')
         if len(text) < min_size:
             raise Exception("文本太短")
         print("成功使用 pymupdf4llm 加载文件")
@@ -368,11 +368,12 @@ Note that while each review is formatted differently according to each reviewer'
     ):
         txt_path = paper.replace(".pdf", ".txt")
         if os.path.exists(txt_path):
-            with open(txt_path, "r") as f:
+            with open(txt_path, "r", encoding='utf-8') as f:
                 paper_text = f.read()
         else:
             paper_text = load_paper(paper)
-        review_text = load_review(review)
+        with open(review, "r", encoding='utf-8') as f:
+            review_text = json.load(f)["review"]
         fewshot_prompt += f"""
 Paper:
 
