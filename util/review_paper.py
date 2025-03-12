@@ -18,7 +18,7 @@ def review_paper(paper_path, api_key=API_KEY, api_base=API_BASE, model=MODEL, pr
         api_key: OpenAI API密钥
         api_base: API基础URL
         model: 使用的模型名称
-        progress_callback: 进度回调函数
+        progress_callback: 进度回调函数,现在会传递AI的思考过程
     Returns:
         generator: 生成进度更新和最终结果的生成器
     """

@@ -139,32 +139,17 @@ def perform_review(
 ):
     def update_progress(msg):
         if progress_callback:
-            # 确保消息是字符串类型
-            if isinstance(msg, list):
-                msg = "\n".join(str(item) for item in msg)
-            elif not isinstance(msg, str):
-                msg = str(msg)
             progress_callback(msg)
-        print(msg)
-    
-    token_stats = {
-        'prompt_tokens': 0,
-        'completion_tokens': 0,
-        'total_tokens': 0,
-        'total_cost': 0
-    }
-    
+            
     try:
-        update_progress("开始执行 perform_review 函数")
-        
         if num_fs_examples > 0:
-            update_progress("正在获取 few-shot 示例...")
+            update_progress("正在加载评审示例...")
             fs_prompt = get_review_fewshot_examples(num_fs_examples)
             base_prompt = review_instruction_form + fs_prompt
         else:
             base_prompt = review_instruction_form
             
-        update_progress("正在准备基础提示...")
+        update_progress("正在准备评审提示...")
         base_prompt += f"""
 Here is the paper you are asked to review:
 ```
@@ -172,7 +157,7 @@ Here is the paper you are asked to review:
 ```"""
 
         if num_reviews_ensemble > 1:
-            update_progress(f"开始生成 {num_reviews_ensemble} 个集成评审...")
+            update_progress(f"开始生成 {num_reviews_ensemble} 个评审意见...")
             llm_review, msg_histories = get_batch_responses_from_llm(
                 base_prompt,
                 model=model,
@@ -182,24 +167,27 @@ Here is the paper you are asked to review:
                 temperature=0.75,
                 n_responses=num_reviews_ensemble,
             )
-            update_progress("已获取集成评审响应")
             
+            # 传递每个评审者的思考过程
+            for idx, review in enumerate(llm_review):
+                update_progress(f"评审者 {idx+1} 的思考过程:\n{review}")
+                
             parsed_reviews = []
             for idx, rev in enumerate(llm_review):
                 try:
                     parsed_reviews.append(extract_json_between_markers(rev))
-                    update_progress(f"成功解析第 {idx+1} 个评审")
                 except Exception as e:
-                    update_progress(f"集成评审 {idx+1} 解析失败: {e}")
-                
+                    update_progress(f"评审 {idx+1} 解析失败: {e}")
+                    
             parsed_reviews = [r for r in parsed_reviews if r is not None]
+            if not parsed_reviews:
+                raise Exception("所有评审解析均失败")
+                
             review = get_meta_review(model, client, temperature, parsed_reviews)
-
-            # take first valid in case meta-reviewer fails
             if review is None:
                 review = parsed_reviews[0]
-
-            # Replace numerical scores with the average of the ensemble.
+                
+            # 计算平均分数
             for score, limits in [
                 ("Originality", (1, 4)),
                 ("Quality", (1, 4)),
@@ -212,30 +200,14 @@ Here is the paper you are asked to review:
                 ("Confidence", (1, 5)),
             ]:
                 scores = []
-                update_progress(parsed_reviews)
                 for r in parsed_reviews:
                     if score in r and limits[1] >= r[score] >= limits[0]:
                         scores.append(r[score])
-                review[score] = int(round(np.mean(scores)))
+                if scores:
+                    review[score] = int(round(sum(scores) / len(scores)))
 
-            # Rewrite the message history with the valid one and new aggregated review.
-            msg_history = msg_histories[0][:-1]
-            msg_history += [
-                {
-                    "role": "assistant",
-                    "content": f"""
-THOUGHT:
-I will start by aggregating the opinions of {num_reviews_ensemble} reviewers that I previously obtained.
-
-REVIEW JSON:
-```json
-{json.dumps(review)}
-```
-""",
-                }
-            ]
         else:
-            update_progress("开始生成单个评审...")
+            update_progress("开始生成评审意见...")
             llm_review, msg_history = get_response_from_llm(
                 base_prompt,
                 model=model,
@@ -244,12 +216,16 @@ REVIEW JSON:
                 msg_history=msg_history,
                 temperature=temperature,
             )
-            update_progress("已获取评审响应")
+            
+            # 传递评审者的思考过程
+            update_progress(f"评审者的思考过程:\n{llm_review}")
+            
             review = extract_json_between_markers(llm_review)
-            update_progress("已解析评审 JSON")
+            if review is None:
+                raise Exception("评审解析失败")
 
         if num_reflections > 1:
-            update_progress(f"开始执行 {num_reflections} 轮反思...")
+            update_progress(f"开始进行 {num_reflections} 轮反思...")
             for j in range(num_reflections - 1):
                 update_progress(f"反思轮次: {j + 2}/{num_reflections}")
                 text, msg_history = get_response_from_llm(
@@ -260,21 +236,21 @@ REVIEW JSON:
                     msg_history=msg_history,
                     temperature=temperature,
                 )
-                review = extract_json_between_markers(text)
-                assert review is not None, "Failed to extract JSON from LLM output"
-
+                update_progress(f"反思过程:\n{text}")
+                
+                new_review = extract_json_between_markers(text)
+                if new_review:
+                    review = new_review
+                
                 if "I am done" in text:
-                    # print(f"Review generation converged after {j + 2} iterations.")
+                    update_progress("反思完成")
                     break
 
-        update_progress("评审完成")
-        if return_msg_history:
-            return review, msg_history
-        else:
-            return review
+        return review, msg_history if return_msg_history else review
+
     except Exception as e:
-        update_progress(f"执行 perform_review 函数时发生错误: {e}")
-        return None, None
+        update_progress(f"评审过程出错: {str(e)}")
+        raise e
 
 
 reviewer_reflection_prompt = """Round {current_round}/{num_reflections}.
@@ -303,12 +279,12 @@ def load_paper(pdf_path, num_pages=None, min_size=100):
     try:
         if num_pages is None:
             print("使用 pymupdf4llm 尝试加载全文...")
-            text = pymupdf4llm.to_markdown(pdf_path, encoding='utf-8')
+            text = pymupdf4llm.to_markdown(pdf_path)
         else:
             print(f"使用 pymupdf4llm 加载前 {num_pages} 页...")
             reader = PdfReader(pdf_path)
             min_pages = min(len(reader.pages), num_pages)
-            text = pymupdf4llm.to_markdown(pdf_path, pages=list(range(min_pages)), encoding='utf-8')
+            text = pymupdf4llm.to_markdown(pdf_path, pages=list(range(min_pages)))
         if len(text) < min_size:
             raise Exception("文本太短")
         print("成功使用 pymupdf4llm 加载文件")
