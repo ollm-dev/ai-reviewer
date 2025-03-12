@@ -1,0 +1,10 @@
+version: 0.1.0
+
+model:
+  api_key: "2b64d699-7b04-4913-abd1-e83035859d7a"
+  api_base: "https://ark.cn-beijing.volces.com/api/v3"
+  model: "doubao-pro-32k-241215"
+
+server:
+  host: 127.0.0.1
+  port: 5555
