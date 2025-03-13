@@ -39,3 +39,10 @@ def log_path_util(name: str) -> str:
     if not log_path.exists():
         log_path.mkdir(parents=True)
     return f"{str(log_path)}/{name}.log"
+
+
+# def log_incomplete_review(review_data: dict):
+#     """记录不完整的评审结果"""
+#     missing = [k for k in required_fields if k not in review_data]
+#     logger.warning(f"不完整的评审结果，缺失字段: {missing}")
+#     logger.debug(f"问题数据: {review_data}")
