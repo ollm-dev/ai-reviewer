@@ -1,7 +1,8 @@
 import gradio as gr
 import tempfile
 import os
-from typing import Generator, Tuple, Any
+import time
+from typing import Generator, Tuple, Any, List, Dict
 
 from util.conf import get_conf
 from util.review_paper import review_paper
@@ -13,7 +14,11 @@ conf = get_conf()
 logger = get_logger("app.reviewer")
 
 def review_tab():
-    """论文评审页面"""
+    """论文评审页面
+    
+    Returns:
+        gr.Tab: Gradio标签页组件
+    """
     
     with gr.Tab("论文评审"):
         # 自定义CSS
@@ -191,6 +196,28 @@ def review_tab():
         .icon {
             opacity: 0.8;
         }
+        
+        /* 思考过程样式 */
+        .thought-block {
+            background: #2d2d2d;
+            border-left: 3px solid #4caf50;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+        }
+        
+        .reflection-block {
+            background: #2d2d2d;
+            border-left: 3px solid #ff9800;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+        }
+        
+        .reviewer-block {
+            background: #2d2d2d;
+            border-left: 3px solid #2196f3;
+            padding: 0.75rem;
+            margin: 0.75rem 0;
+        }
         </style>
         
         <div class="header">
@@ -255,66 +282,110 @@ def review_tab():
                         elem_classes=["review-result"]
                     )
 
-        def stream_handler(content: str) -> Generator[Tuple[str, str, str], Any, None]:
-            """处理流式输出"""
-            if "THOUGHT:" in content:
-                # AI思考过程
+        def process_stream_content(content: str) -> str:
+            """处理流式内容，添加样式
+            
+            Args:
+                content: 原始内容
+                
+            Returns:
+                str: 处理后的内容
+            """
+            # 处理思考过程
+            if "THOUGHT:" in content and "REVIEW JSON:" in content:
                 thought = content.split("THOUGHT:")[1].split("REVIEW JSON:")[0].strip()
-                yield (
-                    f"### 思考过程\n{thought}\n\n",
-                    "AI 正在思考...",
-                    ""
-                )
+                return f'<div class="thought-block">\n\n### 🧠 思考过程\n\n{thought}\n\n</div>'
+            
+            # 处理反思过程
             elif "反思过程:" in content:
-                # 反思内容
                 reflection = content.split("反思过程:")[1].strip()
-                yield (
-                    f"### 反思\n{reflection}\n\n",
-                    "AI 正在反思...",
-                    ""
-                )
+                return f'<div class="reflection-block">\n\n### 🔄 反思过程\n\n{reflection}\n\n</div>'
+            
+            # 处理评审者思考
             elif "评审者" in content and "思考过程" in content:
-                # 多评审者的思考
-                reviewer = content.split("评审者")[1].split("的思考过程:")[0].strip()
-                thought = content.split("的思考过程:")[1].strip()
-                yield (
-                    f"### 评审者 {reviewer}\n{thought}\n\n",
-                    f"评审者 {reviewer} 正在评审...",
-                    ""
-                )
-            elif "```json" in content:
-                # JSON结果暂存不显示
-                yield "", "正在整理评审报告...", ""
-            else:
-                # 其他进度信息
-                yield "", content, ""
+                parts = content.split("评审者")
+                if len(parts) > 1:
+                    reviewer_part = parts[1]
+                    reviewer_num = reviewer_part.split("的思考过程")[0].strip()
+                    thought = content.split("的思考过程:")[1].strip() if "的思考过程:" in content else ""
+                    return f'<div class="reviewer-block">\n\n### 👨‍🔬 评审者 {reviewer_num}\n\n{thought}\n\n</div>'
+            
+            # 处理普通进度信息
+            return content
 
+        def stream_handler(content: str) -> Tuple[str, str]:
+            """处理流式输出
+            
+            Args:
+                content: 流式内容
+                
+            Returns:
+                Tuple[str, str]: 处理后的内容和进度信息
+            """
+            # 处理特殊内容类型
+            processed_content = process_stream_content(content)
+            
+            # 返回处理后的内容和进度信息
+            if "评审者" in content and "思考过程" in content:
+                reviewer_num = content.split("评审者")[1].split("的思考过程")[0].strip()
+                return processed_content, f"评审者 {reviewer_num} 正在评审..."
+            elif "反思过程:" in content:
+                return processed_content, "AI 正在反思..."
+            elif "THOUGHT:" in content:
+                return processed_content, "AI 正在思考..."
+            elif "Token 使用统计" in content:
+                return "", "正在计算统计信息..."
+            else:
+                return "", content  # 普通进度信息
+                
         def review_wrapper(file):
+            """评审包装函数
+            
+            Args:
+                file: PDF文件
+                
+            Returns:
+                Generator: 生成UI更新的生成器
+            """
             if file is None:
                 return "请先上传PDF文件", "请先上传PDF文件", ""
-            progress_updates = []
+                
+            # 存储流式输出内容
             stream_contents = []
-
-            def update_progress(msg):
-                if msg not in progress_updates:
-                    progress_updates.append(msg)
-                    # 对不同类型的消息进行处理
-                    for stream_content, progress, _ in stream_handler(msg):
-                        if stream_content:
-                            stream_contents.append(stream_content)
-                        yield (
-                            "\n".join(stream_contents), # 流式输出
-                            progress if progress else "\n".join(progress_updates), # 进度更新
-                            "" # 评审结果先置空
-                        )
+            current_progress = "准备评审..."
             
             try:
                 with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
                     temp_pdf.write(file)
                     temp_path = temp_pdf.name
                 
+                def update_progress(msg):
+                    nonlocal current_progress, stream_contents
+                    print(f"[UI] Received: {msg}")  # 添加UI接收日志
+                    
+                    # 处理流式内容
+                    content, progress = stream_handler(msg)
+                    
+                    # 更新进度
+                    if progress:
+                        current_progress = progress
+                        print(f"[UI] Progress: {progress}")  # 添加进度更新日志
+                    
+                    # 如果有内容要添加到流式输出
+                    if content:
+                        stream_contents.append(content)
+                        print(f"[UI] Content added: {content}")  # 添加内容更新日志
+                    
+                    return (
+                        "\n".join(stream_contents),
+                        current_progress,
+                        ""
+                    )
+                
+                # 开始评审过程
                 for progress in review_paper(temp_path, progress_callback=update_progress):
-                    if isinstance(progress, tuple):
+                    # 如果是最终结果
+                    if isinstance(progress, tuple) and len(progress) == 2:
                         result, stats = progress
                         # 格式化最终结果
                         review_text = format_review_result(result, stats)
@@ -323,21 +394,42 @@ def review_tab():
                             "✅ 评审完成!",
                             review_text
                         )
+                    # 如果是进度更新
+                    elif isinstance(progress, str):
+                        content, progress_msg = stream_handler(progress)
+                        if content:
+                            stream_contents.append(content)
+                        if progress_msg:
+                            current_progress = progress_msg
+                        
+                        yield (
+                            "\n".join(stream_contents),
+                            current_progress,
+                            ""
+                        )
                     
             except Exception as e:
                 error_msg = f"❌ 评审过程出错: {str(e)}"
                 logger.error(error_msg)  # 记录错误日志
-                yield "", error_msg, "评审失败"
+                yield "\n".join(stream_contents), error_msg, "评审失败"
             finally:
-                if os.path.exists(temp_path):
+                if 'temp_path' in locals() and os.path.exists(temp_path):
                     os.unlink(temp_path)
 
         def format_review_result(result, stats):
-            """格式化评审结果"""
+            """格式化评审结果
+            
+            Args:
+                result: 评审结果
+                stats: 统计信息
+                
+            Returns:
+                str: 格式化后的评审结果
+            """
             return f"""
             ## 📊 论文评审报告
             
-            ### 📈 总体评价
+            ### 📊 总体评价
             - 评分: {result.get('Overall', 'N/A')}/10
             - 决定: {result.get('Decision', 'N/A')}
             
@@ -358,13 +450,22 @@ def review_tab():
             """
 
         def format_list(items):
+            """格式化列表
+            
+            Args:
+                items: 列表项
+                
+            Returns:
+                str: 格式化后的列表
+            """
             return "\n".join(f"- {item}" for item in items)
 
+        # 绑定评审按钮点击事件
         review_button.click(
             fn=review_wrapper,
             inputs=[pdf_input],
             outputs=[stream_output, progress_output, review_output],
-            show_progress=True
+            show_progress=False
         )
 
         # 复制功能
