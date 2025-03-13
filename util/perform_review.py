@@ -146,6 +146,7 @@ def perform_review(
             update_progress("正在加载评审示例...")
             fs_prompt = get_review_fewshot_examples(num_fs_examples)
             base_prompt = review_instruction_form + fs_prompt
+            update_progress(f"已加载 {num_fs_examples} 个评审示例")
         else:
             base_prompt = review_instruction_form
             
@@ -155,6 +156,7 @@ Here is the paper you are asked to review:
 ```
 {text}
 ```"""
+        update_progress("评审提示准备完成")
 
         if num_reviews_ensemble > 1:
             update_progress(f"开始生成 {num_reviews_ensemble} 个评审意见...")
@@ -168,26 +170,42 @@ Here is the paper you are asked to review:
                 n_responses=num_reviews_ensemble,
             )
             
+            update_progress(f"已生成 {num_reviews_ensemble} 个评审意见，开始分析...")
+            
             # 传递每个评审者的思考过程
             for idx, review in enumerate(llm_review):
-                update_progress(f"评审者 {idx+1} 的思考过程:\n{review}")
+                # 提取思考部分
+                if "THOUGHT:" in review:
+                    thought = review.split("THOUGHT:")[1].split("REVIEW JSON:")[0].strip()
+                else:
+                    thought = review
+                update_progress(f"评审者 {idx+1} 的思考过程:\n{thought}")
                 
             parsed_reviews = []
             for idx, rev in enumerate(llm_review):
                 try:
-                    parsed_reviews.append(extract_json_between_markers(rev))
+                    parsed_review = extract_json_between_markers(rev)
+                    parsed_reviews.append(parsed_review)
+                    update_progress(f"评审 {idx+1} 解析成功")
                 except Exception as e:
-                    update_progress(f"评审 {idx+1} 解析失败: {e}")
+                    update_progress(f"评审 {idx+1} 解析失败: {str(e)}")
                     
             parsed_reviews = [r for r in parsed_reviews if r is not None]
             if not parsed_reviews:
                 raise Exception("所有评审解析均失败")
+            
+            update_progress(f"成功解析 {len(parsed_reviews)} 个评审意见")
+            update_progress("正在生成元评审...")
                 
             review = get_meta_review(model, client, temperature, parsed_reviews)
             if review is None:
+                update_progress("元评审生成失败，使用第一个评审结果")
                 review = parsed_reviews[0]
+            else:
+                update_progress("元评审生成成功")
                 
             # 计算平均分数
+            update_progress("正在计算评分统计...")
             for score, limits in [
                 ("Originality", (1, 4)),
                 ("Quality", (1, 4)),
@@ -205,6 +223,7 @@ Here is the paper you are asked to review:
                         scores.append(r[score])
                 if scores:
                     review[score] = int(round(sum(scores) / len(scores)))
+            update_progress("评分统计计算完成")
 
         else:
             update_progress("开始生成评审意见...")
@@ -217,35 +236,61 @@ Here is the paper you are asked to review:
                 temperature=temperature,
             )
             
-            # 传递评审者的思考过程
-            update_progress(f"评审者的思考过程:\n{llm_review}")
+            # 提取思考过程并传递
+            if "THOUGHT:" in llm_review:
+                thought = llm_review.split("THOUGHT:")[1].split("REVIEW JSON:")[0].strip()
+                update_progress(f"评审者的思考过程:\n{thought}")
+            else:
+                update_progress(f"评审者的完整响应:\n{llm_review}")
             
             review = extract_json_between_markers(llm_review)
             if review is None:
                 raise Exception("评审解析失败")
+            else:
+                update_progress("评审解析成功")
 
         if num_reflections > 1:
             update_progress(f"开始进行 {num_reflections} 轮反思...")
             for j in range(num_reflections - 1):
-                update_progress(f"反思轮次: {j + 2}/{num_reflections}")
+                reflection_number = j + 2
+                update_progress(f"反思轮次: {reflection_number}/{num_reflections}")
+                
+                # 构建反思提示
+                reflection_prompt = reviewer_reflection_prompt.format(
+                    current_round=reflection_number,
+                    num_reflections=num_reflections
+                )
+                
                 text, msg_history = get_response_from_llm(
-                    reviewer_reflection_prompt,
+                    reflection_prompt,
                     client=client,
                     model=model,
                     system_message=reviewer_system_prompt,
                     msg_history=msg_history,
                     temperature=temperature,
                 )
-                update_progress(f"反思过程:\n{text}")
+                
+                # 提取反思过程
+                if "THOUGHT:" in text:
+                    thought = text.split("THOUGHT:")[1].split("REVIEW JSON:")[0].strip()
+                    update_progress(f"反思过程:\n{thought}")
+                else:
+                    update_progress(f"反思过程:\n{text}")
                 
                 new_review = extract_json_between_markers(text)
                 if new_review:
                     review = new_review
+                    update_progress("反思结果已更新")
+                else:
+                    update_progress("反思未产生新的评审结果")
                 
                 if "I am done" in text:
-                    update_progress("反思完成")
+                    update_progress("反思完成，无需更多修改")
                     break
+                else:
+                    update_progress("继续反思以改进评审")
 
+        update_progress("评审完成，准备返回最终结果...")
         return review, msg_history if return_msg_history else review
 
     except Exception as e:
@@ -253,7 +298,7 @@ Here is the paper you are asked to review:
         raise e
 
 
-reviewer_reflection_prompt = """Round {current_round}/{num_reflections}.
+reviewer_reflection_prompt = """Round {{current_round}}/{{num_reflections}}.
 In your thoughts, first carefully consider the accuracy and soundness of the review you just created.
 Include any other factors that you think are important in evaluating the paper.
 Ensure the review is clear and concise, and the JSON is in the correct format.
