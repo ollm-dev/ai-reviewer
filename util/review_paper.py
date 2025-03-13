@@ -10,22 +10,25 @@ API_BASE = conf["model"]["api_base"]
 MODEL = conf["model"]["model"]
 
 def review_paper(paper_path, api_key=API_KEY, api_base=API_BASE, model=MODEL, progress_callback=None):
-    """
-    评审一篇论文
+    """评审一篇论文
     
     Args:
         paper_path: PDF论文路径
         api_key: OpenAI API密钥
         api_base: API基础URL
         model: 使用的模型名称
-        progress_callback: 进度回调函数,现在会传递AI的思考过程
+        progress_callback: 进度回调函数
+        
     Returns:
         generator: 生成进度更新和最终结果的生成器
     """
     def update_progress(msg):
+        """内部进度更新函数"""
         if progress_callback:
             progress_callback(msg)
-        print(f"[DEBUG] {msg}")  # 添加调试标记
+        print(f"[Progress] {msg}")  # 保留日志输出
+        if progress_callback:
+            yield msg  # 使用yield返回进度
     
     token_stats = {
         'prompt_tokens': 0,
@@ -43,11 +46,18 @@ def review_paper(paper_path, api_key=API_KEY, api_base=API_BASE, model=MODEL, pr
     
     try:
         # 加载论文
-        update_progress("3. 正在解析PDF内容...")
+        yield from update_progress("正在解析PDF内容...")
         paper_txt = load_paper(paper_path)
         
         # 执行评审
-        update_progress("4. 开始生成评审意见...")
+        yield from update_progress("开始生成评审意见...")
+        
+        # 创建一个包装回调函数来处理流式输出
+        def stream_callback(msg):
+            print(f"[Stream] {msg}")  # 添加流式输出日志
+            yield from update_progress(msg)
+        
+        # 使用流式回调进行评审
         result = perform_review(
             paper_txt,
             model=model,
@@ -55,7 +65,7 @@ def review_paper(paper_path, api_key=API_KEY, api_base=API_BASE, model=MODEL, pr
             num_reflections=5,
             num_fs_examples=1,
             num_reviews_ensemble=5,
-            progress_callback=update_progress  # 直接传递update_progress
+            progress_callback=stream_callback  # 传递流式回调
         )
         
         if isinstance(result, tuple):
@@ -64,25 +74,28 @@ def review_paper(paper_path, api_key=API_KEY, api_base=API_BASE, model=MODEL, pr
             review = result
             stats = {'prompt_tokens': 0, 'completion_tokens': 0}
         
-        # 更新token统计
-        token_stats['prompt_tokens'] += stats['prompt_tokens']
-        token_stats['completion_tokens'] += stats['completion_tokens']
-        token_stats['total_tokens'] = (
-            token_stats['prompt_tokens'] +
-            token_stats['completion_tokens']
-        )
-        # GLM-4-Plus 定价：0.05元/千tokens
-        token_stats['total_cost'] = token_stats['total_tokens'] * 0.05 / 1000
+        # # 更新token统计
+        # token_stats['prompt_tokens'] += stats['prompt_tokens']
+        # token_stats['completion_tokens'] += stats['completion_tokens']
+        # token_stats['total_tokens'] = (
+        #     token_stats['prompt_tokens'] +
+        #     token_stats['completion_tokens']
+        # )
+        # # GLM-4-Plus 定价：0.05元/千tokens
+        # token_stats['total_cost'] = token_stats['total_tokens'] * 0.05 / 1000
         
-        update_progress(f"""
-Token 使用统计:
-- 输入tokens: {token_stats['prompt_tokens']}
-- 输出tokens: {token_stats['completion_tokens']}
-- 总计tokens: {token_stats['total_tokens']}
-- 预估费用: ¥{token_stats['total_cost']:.4f}
-""")
+        # stats_msg = (
+        #     f"Token 使用统计:\n"
+        #     f"- 输入tokens: {token_stats['prompt_tokens']}\n"
+        #     f"- 输出tokens: {token_stats['completion_tokens']}\n"
+        #     f"- 总计tokens: {token_stats['total_tokens']}\n"
+        #     f"- 预估费用: ¥{token_stats['total_cost']:.4f}"
+        # )
+        # yield stats_msg
         
-        update_progress("5. 保存评审结果...")
+        save_msg = "保存评审结果..."
+        yield save_msg
+        
         # 保存评审结果
         output_dir = os.path.dirname(paper_path)
         output_path = os.path.join(output_dir, "review.txt")
@@ -99,10 +112,12 @@ Token 使用统计:
             for q in review['Questions']:
                 f.write(f"- {q}\n")
         
-        yield review, token_stats  # 生成最终结果
+        # 返回最终结果
+        yield review, token_stats
             
     except Exception as e:
-        update_progress(f"评审过程出错: {str(e)}")
+        error_msg = f"评审过程出错: {str(e)}"
+        yield error_msg
         raise e
 
 if __name__ == "__main__":

@@ -62,6 +62,8 @@ For the "Decision" field, don't use Weak Accept, Borderline Accept, Borderline R
 This JSON will be automatically parsed, so ensure the format is precise.
 """
 
+
+
 neurips_form = (
     """
 ## Review Form
@@ -137,9 +139,29 @@ def perform_review(
     review_instruction_form=neurips_form,
     progress_callback=None,
 ):
+    """执行论文评审
+    
+    Args:
+        text: 论文文本
+        model: 模型名称
+        client: API客户端
+        num_reflections: 反思次数
+        num_fs_examples: 少样本示例数量
+        num_reviews_ensemble: 评审集成数量
+        temperature: 温度参数
+        msg_history: 消息历史
+        return_msg_history: 是否返回消息历史
+        reviewer_system_prompt: 评审系统提示
+        review_instruction_form: 评审指令表单
+        progress_callback: 进度回调函数，用于流式输出
+        
+    Returns:
+        object|tuple: 评审结果或评审结果和消息历史
+    """
     def update_progress(msg):
         if progress_callback:
             progress_callback(msg)
+        print(f"[Review] {msg}")  # 保留评审过程日志
             
     try:
         if num_fs_examples > 0:
@@ -153,10 +175,9 @@ def perform_review(
         update_progress("正在准备评审提示...")
         base_prompt += f"""
 Here is the paper you are asked to review:
-```
+\"\"\"
 {text}
 ```"""
-        update_progress("评审提示准备完成")
 
         if num_reviews_ensemble > 1:
             update_progress(f"开始生成 {num_reviews_ensemble} 个评审意见...")
@@ -166,8 +187,9 @@ Here is the paper you are asked to review:
                 client=client,
                 system_message=reviewer_system_prompt,
                 msg_history=msg_history,
-                temperature=0.75,
+                temperature=temperature,
                 n_responses=num_reviews_ensemble,
+                stream_callback=progress_callback  # 添加流式回调
             )
             
             update_progress(f"已生成 {num_reviews_ensemble} 个评审意见，开始分析...")
@@ -234,6 +256,7 @@ Here is the paper you are asked to review:
                 system_message=reviewer_system_prompt,
                 msg_history=msg_history,
                 temperature=temperature,
+                stream_callback=progress_callback
             )
             
             # 提取思考过程并传递
@@ -320,6 +343,16 @@ ONLY INCLUDE "I am done" IF YOU ARE MAKING NO MORE CHANGES."""
 
 
 def load_paper(pdf_path, num_pages=None, min_size=100):
+    """加载PDF文件内容
+    
+    Args:
+        pdf_path: PDF文件路径
+        num_pages: 要加载的页数，None表示全部
+        min_size: 最小文本大小
+        
+    Returns:
+        str: 提取的文本内容
+    """
     print(f"开始加载文件: {pdf_path}")
     try:
         if num_pages is None:
@@ -333,6 +366,7 @@ def load_paper(pdf_path, num_pages=None, min_size=100):
         if len(text) < min_size:
             raise Exception("文本太短")
         print("成功使用 pymupdf4llm 加载文件")
+        return text  # 这里需要返回text
     except Exception as e:
         print(f"pymupdf4llm 加载失败，尝试使用 pymupdf: {e}")
         try:
@@ -344,6 +378,7 @@ def load_paper(pdf_path, num_pages=None, min_size=100):
                 text = text + page.get_text()  # get plain text encoded as UTF-8
             if len(text) < min_size:
                 raise Exception("Text too short")
+            return text  # 这里需要返回text
         except Exception as e:
             print(f"Error with pymupdf, falling back to pypdf: {e}")
             reader = PdfReader(pdf_path)
@@ -353,8 +388,7 @@ def load_paper(pdf_path, num_pages=None, min_size=100):
                 text = "".join(page.extract_text() for page in reader.pages[:num_pages])
             if len(text) < min_size:
                 raise Exception("Text too short")
-
-    return text
+            return text  # 这里需要返回text
 
 
 def load_review(path):

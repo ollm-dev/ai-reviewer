@@ -1,7 +1,8 @@
 import gradio as gr
 import tempfile
 import os
-from typing import Generator, Tuple, Any
+import time
+from typing import Generator, Tuple, Any, List, Dict
 from datetime import datetime
 
 from util.conf import get_conf
@@ -14,7 +15,11 @@ conf = get_conf()
 logger = get_logger("app.reviewer")
 
 def review_tab():
-    """论文评审页面"""
+    """论文评审页面
+    
+    Returns:
+        gr.Tab: Gradio标签页组件
+    """
     
     with gr.Tab("论文评审"):
         # 自定义CSS
@@ -811,6 +816,14 @@ def review_tab():
                 )
 
         def review_wrapper(file):
+            """评审包装函数
+            
+            Args:
+                file: PDF文件
+                
+            Returns:
+                Generator: 生成UI更新的生成器
+            """
             if file is None:
                 return "请先上传PDF文件", "请先上传PDF文件", "", ""
             
@@ -857,7 +870,8 @@ def review_tab():
                         yield content
                 
                 for progress in review_paper(temp_path, progress_callback=update_progress):
-                    if isinstance(progress, tuple):
+                    # 如果是最终结果
+                    if isinstance(progress, tuple) and len(progress) == 2:
                         result, stats = progress
                         review_text = format_review_result(result, stats)
                         # 更新日志面板
@@ -903,14 +917,23 @@ def review_tab():
                 )
             finally:
                 if 'temp_path' in locals() and os.path.exists(temp_path):
+                if 'temp_path' in locals() and os.path.exists(temp_path):
                     os.unlink(temp_path)
 
         def format_review_result(result, stats):
-            """格式化评审结果"""
+            """格式化评审结果
+            
+            Args:
+                result: 评审结果
+                stats: 统计信息
+                
+            Returns:
+                str: 格式化后的评审结果
+            """
             return f"""
             ## 📊 论文评审报告
             
-            ### 📈 总体评价
+            ### 📊 总体评价
             - 评分: {result.get('Overall', 'N/A')}/10
             - 决定: {result.get('Decision', 'N/A')}
             
@@ -931,8 +954,17 @@ def review_tab():
             """
 
         def format_list(items):
+            """格式化列表
+            
+            Args:
+                items: 列表项
+                
+            Returns:
+                str: 格式化后的列表
+            """
             return "\n".join(f"- {item}" for item in items)
 
+        # 绑定评审按钮点击事件
         review_button.click(
             fn=review_wrapper,
             inputs=[pdf_input],
