@@ -1,9 +1,16 @@
 version: 0.1.0
 
 model:
-  api_key: "2b64d699-7b04-4913-abd1-e83035859d7a"
+  api_key: "210bc453-1dc4-4b66-a6ef-993244eb9bea"
   api_base: "https://ark.cn-beijing.volces.com/api/v3"
-  model: "doubao-pro-32k-241215"
+  model: "deepseek-r1-250120"
+
+openrouter:
+  api_key: "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"
+  api_base: "https://openrouter.ai/api/v1"
+  model: "anthropic/claude-3.7-sonnet:beta"
+  site_url: "https://ai-reviewer.example.com"
+  site_name: "AI Paper Review Assistant"
 
 server:
   host: 127.0.0.1

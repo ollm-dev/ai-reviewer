@@ -1,384 +1,336 @@
-import gradio as gr
 import tempfile
 import os
-from typing import Generator, Tuple, Any
-
-from util.conf import get_conf
+import datetime
+import pathlib
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import PyPDF2
+import json
+# 导入评审函数
 from util.review_paper import review_paper
-from util.log import get_logger
+from util.conf import get_conf
 
+# 获取配置
 conf = get_conf()
 
-# 获取日志记录器
-logger = get_logger("app.reviewer")
+# 使用 OpenAI 客户端
+import openai
 
-def review_tab():
-    """论文评审页面"""
+# 创建 OpenAI 客户端
+client = openai.OpenAI(
+  api_key=conf["model"]["api_key"],
+  base_url=conf["model"]["api_base"]
+)
+
+app = FastAPI(title="论文评审 API", description="提供论文评审服务的 API 接口")
+
+# 添加CORS中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有源
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有方法
+    allow_headers=["*"],  # 允许所有头
+)
+
+# 创建结果目录
+results_dir = pathlib.Path("results")
+results_dir.mkdir(exist_ok=True)
+
+class ReviewRequest(BaseModel):
+    file_path: str
+    num_reviewers: int = 1
+    page_limit: int = 0
+    use_claude: bool = False
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    """
+    上传 PDF 文件接口
     
-    with gr.Tab("论文评审"):
-        # 自定义CSS
-        gr.HTML("""
-        <style>
-        /* 全局样式 */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
+    Args:
+        file: PDF 文件
+    
+    Returns:
+        Dict: 包含上传文件信息的字典
+    """
+    if not file.filename.endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="只接受 PDF 文件")
+    
+    try:
+        # 创建临时文件
+        temp_dir = tempfile.gettempdir()
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        temp_path = os.path.join(temp_dir, f"temp_{timestamp}_{file.filename}")
         
-        /* 标题样式 */
-        .header {
-            text-align: center;
-            margin: 0.5rem 0 1.5rem;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
-            color: white;
-            border-radius: 8px;
-        }
+        # 添加日志
+        print(f"[DEBUG] 临时目录: {temp_dir}")
+        print(f"[DEBUG] 创建临时文件: {temp_path}")
         
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
+        # 保存上传的文件
+        with open(temp_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
         
-        .header p {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
+        # 验证文件创建
+        if os.path.exists(temp_path):
+            print(f"[DEBUG] 临时文件创建成功: {temp_path}")
+            print(f"[DEBUG] 临时文件大小: {os.path.getsize(temp_path)} 字节")
+        else:
+            print(f"[ERROR] 临时文件创建失败: {temp_path}")
         
-        /* 面板样式 */
-        .panel {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e0e0e0;
+        return {
+            "status": "success",
+            "message": "文件上传成功",
+            "file_path": temp_path,
+            "file_name": file.filename
         }
-        
-        /* 上传区域样式 */
-        .upload-area {
-            text-align: center;
-            padding: 1.5rem;
-            border: 2px dashed #bbdefb;
-            border-radius: 8px;
-            background: #f8f9fa;
-            transition: all 0.3s ease;
-            margin: 0.5rem 0;
-        }
-        
-        .upload-area:hover {
-            border-color: #2196f3;
-            background: #e3f2fd;
-        }
-        
-        /* 按钮样式 */
-        .custom-button {
-            background: #1976d2;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .custom-button:hover {
-            background: #1565c0;
-        }
-        
-        /* 进度区域样式 */
-        .progress-info {
-            padding: 0.75rem;
-            background: #f5f5f5;
-            border-radius: 4px;
-            border-left: 3px solid #2196f3;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            color: #424242;
-            margin: 0.5rem 0;
-        }
-        
-        /* 输出区域样式 */
-        .stream-output {
-            font-family: "SF Mono", "Consolas", monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            padding: 1rem;
-            background: #1e1e1e;
-            color: #e0e0e0;
-            border-radius: 6px;
-            height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            margin: 0.5rem 0;
-        }
-        
-        .stream-output::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .stream-output::-webkit-scrollbar-track {
-            background: #2d2d2d;
-        }
-        
-        .stream-output::-webkit-scrollbar-thumb {
-            background: #666;
-            border-radius: 3px;
-        }
-        
-        /* 评审结果样式 */
-        .review-result {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #212121;
-            padding: 0.5rem;
-        }
-        
-        .review-result h2 {
-            color: #1976d2;
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin: 1rem 0 0.75rem;
-            padding-bottom: 0.4rem;
-            border-bottom: 2px solid #e3f2fd;
-        }
-        
-        .review-result h3 {
-            color: #2196f3;
-            font-size: 1.1rem;
-            font-weight: 500;
-            margin: 1rem 0 0.5rem;
-        }
-        
-        .review-result ul {
-            margin: 0.4rem 0;
-            padding-left: 1.2rem;
-        }
-        
-        .review-result li {
-            margin: 0.4rem 0;
-            color: #424242;
-        }
-        
-        /* 统计信息样式 */
-        .stats-info {
-            margin: 1rem 0;
-            padding: 0.75rem;
-            background: #e3f2fd;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #1976d2;
-        }
+    except Exception as e:
+        print(f"[ERROR] 文件上传异常: {str(e)}")
+        import traceback
+        print(f"[ERROR] 异常堆栈: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"文件上传失败: {str(e)}")
 
-        /* 分栏间距 */
-        .gap-right {
-            margin-right: 1rem;
-        }
+# 添加读取 JSON 提示词的函数
+def get_json_prompt():
+    """读取 JSON 格式化提示词"""
+    try:
+        prompt_path = os.path.join("doc", "Josn_prompt.md")
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"[ERROR] 读取 JSON 提示词失败: {str(e)}")
+        return ""  # 如果读取失败，返回空字符串，不影响原有功能
+
+# 添加从论文内容提取JSON结构的函数
+def extract_json_structure(paper_text):
+    """
+    从论文内容中提取JSON结构
+    
+    Args:
+        paper_text: 论文文本内容
+    
+    Returns:
+        str: JSON格式的结构化数据
+    """
+    try:
+        # 获取JSON提示词
+        json_prompt = get_json_prompt()
+        if not json_prompt:
+            print("[WARNING] 没有找到JSON提示词，无法生成结构化数据")
+            return "{}"  # 返回空JSON对象
         
-        /* 标题样式 */
-        .section-title {
-            font-size: 1rem;
-            color: #424242;
-            margin: 0.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        # 调用模型生成JSON结构
+        print("[DEBUG] 开始生成JSON结构化数据")
+        response = client.chat.completions.create(
+            model="deepseek-r1-250120",  # 使用与评审相同的模型
+            messages=[
+                {"role": "system", "content": json_prompt},
+                {"role": "user", "content": f"请从以下论文中提取结构化信息:\n\n{paper_text[:6000]}"}  # 限制文本长度
+            ],
+            temperature=0.1,  # 低温度以获得一致的结果
+            max_tokens=2000,
+            response_format={"type": "json_object"}  # 确保返回JSON格式
+        )
         
-        /* 图标样式 */
-        .icon {
-            opacity: 0.8;
-        }
-        </style>
+        # 提取JSON结果
+        json_result = response.choices[0].message.content
+        print(f"[DEBUG] 生成的JSON结构: {json_result[:3000]}...")  # 只打印前3000字符
         
-        <div class="header">
-            <h1>论文智能评审系统</h1>
-            <p>AI Reviewer，帮助您快速分析论文优劣</p>
-        </div>
-        """)
-        
-        with gr.Row(equal_height=True):
-            # 左侧面板
-            with gr.Column(scale=1, elem_classes=["gap-right"]):
-                with gr.Group(elem_classes=["panel"]):
-                    gr.Markdown(
-                        "### 📄 上传论文",
-                        elem_classes=["section-title"]
-                    )
-                    with gr.Group(elem_classes=["upload-area"]):
-                        pdf_input = gr.File(
-                            label="支持 PDF 格式",
-                            file_types=[".pdf"],
-                            type="binary"
-                        )
-                        review_button = gr.Button(
-                            "开始评审",
-                            variant="primary",
-                            elem_classes=["custom-button"]
-                        )
+        try:
+            # 验证JSON格式
+            json.loads(json_result)
+            return json_result
+        except json.JSONDecodeError as json_err:
+            print(f"[ERROR] 生成的JSON格式不正确: {str(json_err)}")
+            return "{}"  # 返回空JSON对象
+            
+    except Exception as e:
+        print(f"[ERROR] 生成JSON结构异常: {str(e)}")
+        import traceback
+        print(f"[ERROR] JSON结构生成异常堆栈: {traceback.format_exc()}")
+        return "{}"  # 返回空JSON对象
+
+@app.post("/review")
+async def review_paper_endpoint(request: ReviewRequest):
+    """
+    执行论文评审接口（流式响应）
                 
-                with gr.Group(elem_classes=["panel"]):
-                    gr.Markdown(
-                        "### 📊 评审进度",
-                        elem_classes=["section-title"]
-                    )
-                    progress_output = gr.Markdown(
-                        "准备就绪...",
-                        elem_classes=["progress-info"]
-                    )
-                    
-            # 右侧面板    
-            with gr.Column(scale=2):
-                with gr.Group(elem_classes=["panel"]):
-                    gr.Markdown(
-                        "### 🤖 AI 评审过程",
-                        elem_classes=["section-title"]
-                    )
-                    stream_output = gr.Markdown(
-                        elem_classes=["stream-output"]
-                    )
-                
-                with gr.Group(elem_classes=["panel"]):
-                    with gr.Row():
-                        gr.Markdown(
-                            "### 📝 评审结果",
-                            elem_classes=["section-title"]
-                        )
-                        copy_button = gr.Button(
-                            "📋 复制",
-                            size="sm",
-                            elem_classes=["custom-button"]
-                        )
-                    review_output = gr.Markdown(
-                        elem_classes=["review-result"]
-                    )
+    Args:
+        request: ReviewRequest 对象，包含文件路径和评审参数
+    
+    Returns:
+        StreamingResponse: 流式响应评审结果
+    """
+    # 检查文件路径
+    print(f"[DEBUG] 尝试访问文件: {request.file_path}")
+    if not os.path.exists(request.file_path):
+        print(f"[ERROR] 文件不存在: {request.file_path}")
+        raise HTTPException(status_code=404, detail="文件不存在")
+    else:
+        print(f"[DEBUG] 文件存在且可访问: {request.file_path}")
+        print(f"[DEBUG] 文件大小: {os.path.getsize(request.file_path)} 字节")
 
-        def stream_handler(content: str) -> Generator[Tuple[str, str, str], Any, None]:
-            """处理流式输出"""
-            if "THOUGHT:" in content:
-                # AI思考过程
-                thought = content.split("THOUGHT:")[1].split("REVIEW JSON:")[0].strip()
-                yield (
-                    f"### 思考过程\n{thought}\n\n",
-                    "AI 正在思考...",
-                    ""
-                )
-            elif "反思过程:" in content:
-                # 反思内容
-                reflection = content.split("反思过程:")[1].strip()
-                yield (
-                    f"### 反思\n{reflection}\n\n",
-                    "AI 正在反思...",
-                    ""
-                )
-            elif "评审者" in content and "思考过程" in content:
-                # 多评审者的思考
-                reviewer = content.split("评审者")[1].split("的思考过程:")[0].strip()
-                thought = content.split("的思考过程:")[1].strip()
-                yield (
-                    f"### 评审者 {reviewer}\n{thought}\n\n",
-                    f"评审者 {reviewer} 正在评审...",
-                    ""
-                )
-            elif "```json" in content:
-                # JSON结果暂存不显示
-                yield "", "正在整理评审报告...", ""
-            else:
-                # 其他进度信息
-                yield "", content, ""
+    async def generate():
+        try:
+            # 获取 PDF 文件名
+            pdf_name = os.path.basename(request.file_path)
+            print(f"[DEBUG] 开始处理PDF: {pdf_name}")
 
-        def review_wrapper(file):
-            if file is None:
-                return "请先上传PDF文件", "请先上传PDF文件", ""
-            progress_updates = []
-            stream_contents = []
-
-            def update_progress(msg):
-                if msg not in progress_updates:
-                    progress_updates.append(msg)
-                    # 对不同类型的消息进行处理
-                    for stream_content, progress, _ in stream_handler(msg):
-                        if stream_content:
-                            stream_contents.append(stream_content)
-                        yield (
-                            "\n".join(stream_contents), # 流式输出
-                            progress if progress else "\n".join(progress_updates), # 进度更新
-                            "" # 评审结果先置空
-                        )
+            # 用于保存提取的文本
+            all_text = ""
             
             try:
-                with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_pdf:
-                    temp_pdf.write(file)
-                    temp_path = temp_pdf.name
-                
-                for progress in review_paper(temp_path, progress_callback=update_progress):
-                    if isinstance(progress, tuple):
-                        result, stats = progress
-                        # 格式化最终结果
-                        review_text = format_review_result(result, stats)
-                        yield (
-                            "\n".join(stream_contents),
-                            "✅ 评审完成!",
-                            review_text
-                        )
-                    
-            except Exception as e:
-                error_msg = f"❌ 评审过程出错: {str(e)}"
-                logger.error(error_msg)  # 记录错误日志
-                yield "", error_msg, "评审失败"
-            finally:
-                if os.path.exists(temp_path):
-                    os.unlink(temp_path)
+                print(f"[DEBUG] 开始读取PDF文件: {request.file_path}")
+                with open(request.file_path, 'rb') as file:
+                    try:
+                        reader = PyPDF2.PdfReader(file)
+                        num_pages = len(reader.pages)
+                        print(f"[DEBUG] PDF读取成功，共 {num_pages} 页")
+                        
+                        # 确定要处理的页数
+                        pages_to_load = num_pages
+                        if request.page_limit > 0 and request.page_limit < num_pages:
+                            pages_to_load = request.page_limit
+                        
+                        # 提取文本
+                        for i in range(pages_to_load):
+                            print(f"[DEBUG] 正在提取第 {i+1}/{pages_to_load} 页")
+                            page = reader.pages[i]
+                            text = page.extract_text()
+                            all_text += text + "\n\n"
+                            # 发送进度信息
+                            progress = {
+                                "type": "progress",
+                                "current": i + 1,
+                                "total": pages_to_load,
+                                "message": f"正在处理第 {i + 1}/{pages_to_load} 页"
+                            }
+                            yield f"data: {json.dumps(progress, ensure_ascii=False)}\n\n"
+                    except Exception as pdf_err:
+                        print(f"[ERROR] PDF解析异常: {str(pdf_err)}")
+                        import traceback
+                        print(f"[ERROR] PDF解析异常堆栈: {traceback.format_exc()}")
+                        raise pdf_err
+            except Exception as file_err:
+                print(f"[ERROR] 文件读取异常: {str(file_err)}")
+                import traceback
+                print(f"[ERROR] 文件读取异常堆栈: {traceback.format_exc()}")
+                error_msg = {
+                    "type": "error",
+                    "message": f"文件读取失败: {str(file_err)}"
+                }
+                yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+                return
 
-        def format_review_result(result, stats):
-            """格式化评审结果"""
-            return f"""
-            ## 📊 论文评审报告
+            print(f"[DEBUG] 提取的文本示例: {all_text[:100]}...")
             
-            ### 📈 总体评价
-            - 评分: {result.get('Overall', 'N/A')}/10
-            - 决定: {result.get('Decision', 'N/A')}
-            
-            ### ✨ 主要优点
-            {format_list(result.get('Strengths', []))}
-            
-            ### ❗ 存在问题
-            {format_list(result.get('Weaknesses', []))}
-            
-            ### 💡 建议改进
-            {format_list(result.get('Questions', []))}
-            
-            <div class="stats-info">
-            ### 📊 评审统计
-            - 总计 tokens: {stats.get('total_tokens', 0):,}
-            - 预估费用: ¥{stats.get('total_cost', 0):.4f}
-            </div>
-            """
+            # 流式调用API
+            print("[DEBUG] 开始调用AI评审API")
 
-        def format_list(items):
-            return "\n".join(f"- {item}" for item in items)
+            # 获取 Markdown 提示词
+            markdown_prompt = get_markdown_prompt()
 
-        review_button.click(
-            fn=review_wrapper,
-            inputs=[pdf_input],
-            outputs=[stream_output, progress_output, review_output],
-            show_progress=True
-        )
+            # 构建系统提示词，添加 Markdown 格式要求
+            system_prompt = "你是一个专业的论文评审专家，请对以下论文进行评审："
+            if markdown_prompt:
+                system_prompt = f"{markdown_prompt}\n\n{system_prompt}"
 
-        # 复制功能
-        copy_js = """
-            (output) => {
-                if (!output) return;
-                navigator.clipboard.writeText(output);
-                const notify = window.notifyOnSuccess || window.notify;
-                if (notify) notify({ msg: "已复制到剪贴板!", type: "success" });
+            response = client.chat.completions.create(
+                model="deepseek-r1-250120",
+                messages=[
+                    {"role": "system", "content": system_prompt + all_text},
+                ],
+                temperature=0.75,
+                max_tokens=5000,
+                stream=True
+            )
+            
+            # 处理流式响应
+            for chunk in response:
+                # 获取思考过程和最终回答
+                if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
+                    reasoning_content = chunk.choices[0].delta.reasoning_content
+                    data = {
+                        "type": "reasoning",
+                        "reasoning": reasoning_content
+                    }
+                    print(f"[DEBUG] reasoning: {reasoning_content}")
+                    yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+                if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content
+                    data = {
+                        "type": "content",
+                        "content": content
+                    }
+                    print(f"[DEBUG] content: {content}")
+                    yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+            # 生成JSON结构
+            json_structure = extract_json_structure(all_text)
+            
+            # 发送完成信息
+            complete_msg = {
+                "type": "complete",
+                "message": "评审完成",
+                "json_structure": json_structure
             }
-        """
-        copy_button.click(
-            fn=None,
-            inputs=[review_output],
-            outputs=None,
-            js=copy_js
-        )   
+            yield f"data: {json.dumps(complete_msg, ensure_ascii=False)}\n\n"
+
+        except Exception as e:
+            print(f"[ERROR] 评审处理异常: {str(e)}")
+            import traceback
+            print(f"[ERROR] 评审处理异常堆栈: {traceback.format_exc()}")
+            error_msg = {
+                "type": "error",
+                "message": str(e)
+            }
+            yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+        finally:
+            # 清理临时文件
+            try:
+                if os.path.exists(request.file_path):
+                    print(f"[DEBUG] 清理临时文件: {request.file_path}")
+                    os.unlink(request.file_path)
+                    print(f"[DEBUG] 临时文件已清理")
+                else:
+                    print(f"[DEBUG] 临时文件不存在，无需清理: {request.file_path}")
+            except Exception as clean_err:
+                print(f"[ERROR] 临时文件清理失败: {str(clean_err)}")
+
+    return StreamingResponse(
+        generate(), 
+        media_type='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+        }
+    )
+
+def launch_app(host="localhost", port=5555):
+    """
+    启动论文评审API服务
+    
+    Args:
+        host: 主机地址，默认为127.0.0.1
+        port: 端口号，默认为5555
+    """
+    import uvicorn
+    uvicorn.run(app, host=host, port=port)
+
+# 在导入部分后添加读取 Markdown 提示词的函数
+def get_markdown_prompt():
+    """读取 Markdown 格式化提示词"""
+    try:
+        prompt_path = os.path.join("doc", "markdown_prompt.md")
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print(f"[ERROR] 读取 Markdown 提示词失败: {str(e)}")
+        return ""  # 如果读取失败，返回空字符串，不影响原有功能
+
+if __name__ == "__main__":
+    launch_app()

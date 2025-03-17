@@ -25,6 +25,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+logs
+results
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -145,7 +147,7 @@ conf/*.prod.yaml
 conf/*.test.yaml
 
 output/
-data/
+# data/
 log/
 archive/
 .syncignore

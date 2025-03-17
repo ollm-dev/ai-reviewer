@@ -1,0 +1,1432 @@
+data: {"type": "progress", "current": 1, "total": 38, "message": "正在处理第 1/38 页"}
+
+data: {"type": "progress", "current": 2, "total": 38, "message": "正在处理第 2/38 页"}
+
+data: {"type": "progress", "current": 3, "total": 38, "message": "正在处理第 3/38 页"}
+
+data: {"type": "progress", "current": 4, "total": 38, "message": "正在处理第 4/38 页"}
+
+data: {"type": "progress", "current": 5, "total": 38, "message": "正在处理第 5/38 页"}
+
+data: {"type": "progress", "current": 6, "total": 38, "message": "正在处理第 6/38 页"}
+
+data: {"type": "progress", "current": 7, "total": 38, "message": "正在处理第 7/38 页"}
+
+data: {"type": "progress", "current": 8, "total": 38, "message": "正在处理第 8/38 页"}
+
+data: {"type": "progress", "current": 9, "total": 38, "message": "正在处理第 9/38 页"}
+
+data: {"type": "progress", "current": 10, "total": 38, "message": "正在处理第 10/38 页"}
+
+data: {"type": "progress", "current": 11, "total": 38, "message": "正在处理第 11/38 页"}
+
+data: {"type": "progress", "current": 12, "total": 38, "message": "正在处理第 12/38 页"}
+
+data: {"type": "progress", "current": 13, "total": 38, "message": "正在处理第 13/38 页"}
+
+data: {"type": "progress", "current": 14, "total": 38, "message": "正在处理第 14/38 页"}
+
+data: {"type": "progress", "current": 15, "total": 38, "message": "正在处理第 15/38 页"}
+
+data: {"type": "progress", "current": 16, "total": 38, "message": "正在处理第 16/38 页"}
+
+data: {"type": "progress", "current": 17, "total": 38, "message": "正在处理第 17/38 页"}
+
+data: {"type": "progress", "current": 18, "total": 38, "message": "正在处理第 18/38 页"}
+
+data: {"type": "progress", "current": 19, "total": 38, "message": "正在处理第 19/38 页"}
+
+data: {"type": "progress", "current": 20, "total": 38, "message": "正在处理第 20/38 页"}
+
+data: {"type": "progress", "current": 21, "total": 38, "message": "正在处理第 21/38 页"}
+
+data: {"type": "progress", "current": 22, "total": 38, "message": "正在处理第 22/38 页"}
+
+data: {"type": "progress", "current": 23, "total": 38, "message": "正在处理第 23/38 页"}
+
+data: {"type": "progress", "current": 24, "total": 38, "message": "正在处理第 24/38 页"}
+
+data: {"type": "progress", "current": 25, "total": 38, "message": "正在处理第 25/38 页"}
+
+data: {"type": "progress", "current": 26, "total": 38, "message": "正在处理第 26/38 页"}
+
+data: {"type": "progress", "current": 27, "total": 38, "message": "正在处理第 27/38 页"}
+
+data: {"type": "progress", "current": 28, "total": 38, "message": "正在处理第 28/38 页"}
+
+data: {"type": "progress", "current": 29, "total": 38, "message": "正在处理第 29/38 页"}
+
+data: {"type": "progress", "current": 30, "total": 38, "message": "正在处理第 30/38 页"}
+
+data: {"type": "progress", "current": 31, "total": 38, "message": "正在处理第 31/38 页"}
+
+data: {"type": "progress", "current": 32, "total": 38, "message": "正在处理第 32/38 页"}
+
+data: {"type": "progress", "current": 33, "total": 38, "message": "正在处理第 33/38 页"}
+
+data: {"type": "progress", "current": 34, "total": 38, "message": "正在处理第 34/38 页"}
+
+data: {"type": "progress", "current": 35, "total": 38, "message": "正在处理第 35/38 页"}
+
+data: {"type": "progress", "current": 36, "total": 38, "message": "正在处理第 36/38 页"}
+
+data: {"type": "progress", "current": 37, "total": 38, "message": "正在处理第 37/38 页"}
+
+data: {"type": "progress", "current": 38, "total": 38, "message": "正在处理第 38/38 页"}
+
+data: {"type": "reasoning", "reasoning": "好的"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我现在"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "处理"}
+
+data: {"type": "reasoning", "reasoning": "一个"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提交"}
+
+data: {"type": "reasoning", "reasoning": "的"}
+
+data: {"type": "reasoning", "reasoning": "请求"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "希望"}
+
+data: {"type": "reasoning", "reasoning": "我"}
+
+data: {"type": "reasoning", "reasoning": "作为一个"}
+
+data: {"type": "reasoning", "reasoning": "专业的"}
+
+data: {"type": "reasoning", "reasoning": "论文"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "专家"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "对"}
+
+data: {"type": "reasoning", "reasoning": "一篇"}
+
+data: {"type": "reasoning", "reasoning": "国家"}
+
+data: {"type": "reasoning", "reasoning": "自然科学"}
+
+data: {"type": "reasoning", "reasoning": "基金的"}
+
+data: {"type": "reasoning", "reasoning": "申请书"}
+
+data: {"type": "reasoning", "reasoning": "进行"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "代码"}
+
+data: {"type": "reasoning", "reasoning": "是"}
+
+data: {"type": "reasoning", "reasoning": "D"}
+
+data: {"type": "reasoning", "reasoning": "010"}
+
+data: {"type": "reasoning", "reasoning": "201"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "首先"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我需要"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "的具体"}
+
+data: {"type": "reasoning", "reasoning": "需求"}
+
+data: {"type": "reasoning", "reasoning": "是什么"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "是在"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "基金"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "专家"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "意见"}
+
+data: {"type": "reasoning", "reasoning": "来"}
+
+data: {"type": "reasoning", "reasoning": "改进"}
+
+data: {"type": "reasoning", "reasoning": "他们的"}
+
+data: {"type": "reasoning", "reasoning": "申请书"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "或者"}
+
+data: {"type": "reasoning", "reasoning": "他们"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "是在"}
+
+data: {"type": "reasoning", "reasoning": "模拟"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "过程"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "以"}
+
+data: {"type": "reasoning", "reasoning": "了解"}
+
+data: {"type": "reasoning", "reasoning": "如何"}
+
+data: {"type": "reasoning", "reasoning": "更好地"}
+
+data: {"type": "reasoning", "reasoning": "准备"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "材料"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "\n\n"}
+
+data: {"type": "reasoning", "reasoning": "接下来"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我要"}
+
+data: {"type": "reasoning", "reasoning": "查看"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提供"}
+
+data: {"type": "reasoning", "reasoning": "的信息"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "给出的"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "看起来"}
+
+data: {"type": "reasoning", "reasoning": "像是"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "书的"}
+
+data: {"type": "reasoning", "reasoning": "封面"}
+
+data: {"type": "reasoning", "reasoning": "页"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "包括"}
+
+data: {"type": "reasoning", "reasoning": "受理"}
+
+data: {"type": "reasoning", "reasoning": "部门"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "收"}
+
+data: {"type": "reasoning", "reasoning": "件"}
+
+data: {"type": "reasoning", "reasoning": "日期"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "受理"}
+
+data: {"type": "reasoning", "reasoning": "编号"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "资助"}
+
+data: {"type": "reasoning", "reasoning": "类别"}
+
+data: {"type": "reasoning", "reasoning": "（"}
+
+data: {"type": "reasoning", "reasoning": "面上"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "）、"}
+
+data: {"type": "reasoning", "reasoning": "亚"}
+
+data: {"type": "reasoning", "reasoning": "类"}
+
+data: {"type": "reasoning", "reasoning": "说明"}
+
+data: {"type": "reasoning", "reasoning": "和"}
+
+data: {"type": "reasoning", "reasoning": "附"}
+
+data: {"type": "reasoning", "reasoning": "注"}
+
+data: {"type": "reasoning", "reasoning": "说明"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "然而"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提到"}
+
+data: {"type": "reasoning", "reasoning": "的是"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "论文"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "但"}
+
+data: {"type": "reasoning", "reasoning": "提供的"}
+
+data: {"type": "reasoning", "reasoning": "似乎是"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "申请书"}
+
+data: {"type": "reasoning", "reasoning": "的结构"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "有些"}
+
+data: {"type": "reasoning", "reasoning": "混淆"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "我需要"}
+
+data: {"type": "reasoning", "reasoning": "确认"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "误"}
+
+data: {"type": "reasoning", "reasoning": "将"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "申请书"}
+
+data: {"type": "reasoning", "reasoning": "当作"}
+
+data: {"type": "reasoning", "reasoning": "论文"}
+
+data: {"type": "reasoning", "reasoning": "提交"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "或者"}
+
+data: {"type": "reasoning", "reasoning": "是否有"}
+
+data: {"type": "reasoning", "reasoning": "其他"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "代码"}
+
+data: {"type": "reasoning", "reasoning": "D"}
+
+data: {"type": "reasoning", "reasoning": "010"}
+
+data: {"type": "reasoning", "reasoning": "201"}
+
+data: {"type": "reasoning", "reasoning": "对应的"}
+
+data: {"type": "reasoning", "reasoning": "领域"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "根据"}
+
+data: {"type": "reasoning", "reasoning": "国家"}
+
+data: {"type": "reasoning", "reasoning": "自然科学"}
+
+data: {"type": "reasoning", "reasoning": "基金的"}
+
+data: {"type": "reasoning", "reasoning": "分类"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "D"}
+
+data: {"type": "reasoning", "reasoning": "010"}
+
+data: {"type": "reasoning", "reasoning": "201"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "属于"}
+
+data: {"type": "reasoning", "reasoning": "信息"}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "部"}
+
+data: {"type": "reasoning", "reasoning": "中的"}
+
+data: {"type": "reasoning", "reasoning": "计算机"}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "或"}
+
+data: {"type": "reasoning", "reasoning": "相关"}
+
+data: {"type": "reasoning", "reasoning": "领域"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "比如"}
+
+data: {"type": "reasoning", "reasoning": "计算机"}
+
+data: {"type": "reasoning", "reasoning": "应用"}
+
+data: {"type": "reasoning", "reasoning": "技术"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "因此"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "时需要"}
+
+data: {"type": "reasoning", "reasoning": "聚焦"}
+
+data: {"type": "reasoning", "reasoning": "于"}
+
+data: {"type": "reasoning", "reasoning": "该"}
+
+data: {"type": "reasoning", "reasoning": "领域的"}
+
+data: {"type": "reasoning", "reasoning": "学术"}
+
+data: {"type": "reasoning", "reasoning": "价值和"}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "由于"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提供的"}
+
+data: {"type": "reasoning", "reasoning": "申请书"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "有限"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "只有"}
+
+data: {"type": "reasoning", "reasoning": "封面"}
+
+data: {"type": "reasoning", "reasoning": "信息"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "缺乏"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "方案"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "基础"}
+
+data: {"type": "reasoning", "reasoning": "等"}
+
+data: {"type": "reasoning", "reasoning": "关键"}
+
+data: {"type": "reasoning", "reasoning": "部分"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "这"}
+
+data: {"type": "reasoning", "reasoning": "可能会"}
+
+data: {"type": "reasoning", "reasoning": "影响"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "的"}
+
+data: {"type": "reasoning", "reasoning": "全面"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "作为"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "专家"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "通常"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "详细"}
+
+data: {"type": "reasoning", "reasoning": "的研究"}
+
+data: {"type": "reasoning", "reasoning": "计划"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "目标"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "方法"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "预期"}
+
+data: {"type": "reasoning", "reasoning": "成果"}
+
+data: {"type": "reasoning", "reasoning": "等信息"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "因此"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我需要"}
+
+data: {"type": "reasoning", "reasoning": "提醒"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提供"}
+
+data: {"type": "reasoning", "reasoning": "更"}
+
+data: {"type": "reasoning", "reasoning": "完整的"}
+
+data: {"type": "reasoning", "reasoning": "材料"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "或者"}
+
+data: {"type": "reasoning", "reasoning": "假设"}
+
+data: {"type": "reasoning", "reasoning": "在"}
+
+data: {"type": "reasoning", "reasoning": "现有"}
+
+data: {"type": "reasoning", "reasoning": "信息"}
+
+data: {"type": "reasoning", "reasoning": "下"}
+
+data: {"type": "reasoning", "reasoning": "给出"}
+
+data: {"type": "reasoning", "reasoning": "一般"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "建议"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "接下来"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我需要"}
+
+data: {"type": "reasoning", "reasoning": "考虑"}
+
+data: {"type": "reasoning", "reasoning": "面上"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "的特点"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "面上"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "支持"}
+
+data: {"type": "reasoning", "reasoning": "科技"}
+
+data: {"type": "reasoning", "reasoning": "人员在"}
+
+data: {"type": "reasoning", "reasoning": "国家"}
+
+data: {"type": "reasoning", "reasoning": "自然科学"}
+
+data: {"type": "reasoning", "reasoning": "基金"}
+
+data: {"type": "reasoning", "reasoning": "资助"}
+
+data: {"type": "reasoning", "reasoning": "范围内"}
+
+data: {"type": "reasoning", "reasoning": "自主"}
+
+data: {"type": "reasoning", "reasoning": "选题"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "鼓励"}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "因此"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "时应"}
+
+data: {"type": "reasoning", "reasoning": "注重"}
+
+data: {"type": "reasoning", "reasoning": "项目的"}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "价值"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "方案的"}
+
+data: {"type": "reasoning", "reasoning": "可行性"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "团队"}
+
+data: {"type": "reasoning", "reasoning": "的能力"}
+
+data: {"type": "reasoning", "reasoning": "等"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "可能的"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "要点"}
+
+data: {"type": "reasoning", "reasoning": "包括"}
+
+data: {"type": "reasoning", "reasoning": "：\n"}
+
+data: {"type": "reasoning", "reasoning": "1"}
+
+data: {"type": "reasoning", "reasoning": "."}
+
+data: {"type": "reasoning", "reasoning": " "}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "问题"}
+
+data: {"type": "reasoning", "reasoning": "的重要性"}
+
+data: {"type": "reasoning", "reasoning": "："}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "提出了"}
+
+data: {"type": "reasoning", "reasoning": "重要的"}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "问题"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "具有"}
+
+data: {"type": "reasoning", "reasoning": "理论"}
+
+data: {"type": "reasoning", "reasoning": "或"}
+
+data: {"type": "reasoning", "reasoning": "应用"}
+
+data: {"type": "reasoning", "reasoning": "价值"}
+
+data: {"type": "reasoning", "reasoning": "。\n"}
+
+data: {"type": "reasoning", "reasoning": "2"}
+
+data: {"type": "reasoning", "reasoning": "."}
+
+data: {"type": "reasoning", "reasoning": " "}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "："}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "新颖"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否有"}
+
+data: {"type": "reasoning", "reasoning": "别"}
+
+data: {"type": "reasoning", "reasoning": "于"}
+
+data: {"type": "reasoning", "reasoning": "已有"}
+
+data: {"type": "reasoning", "reasoning": "工作"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "取得"}
+
+data: {"type": "reasoning", "reasoning": "突破"}
+
+data: {"type": "reasoning", "reasoning": "。\n"}
+
+data: {"type": "reasoning", "reasoning": "3"}
+
+data: {"type": "reasoning", "reasoning": "."}
+
+data: {"type": "reasoning", "reasoning": " "}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "方案"}
+
+data: {"type": "reasoning", "reasoning": "："}
+
+data: {"type": "reasoning", "reasoning": "方法"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "合理"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "技术"}
+
+data: {"type": "reasoning", "reasoning": "路线"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "可行"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否有"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "的研究"}
+
+data: {"type": "reasoning", "reasoning": "计划和"}
+
+data: {"type": "reasoning", "reasoning": "阶段性"}
+
+data: {"type": "reasoning", "reasoning": "目标"}
+
+data: {"type": "reasoning", "reasoning": "。\n"}
+
+data: {"type": "reasoning", "reasoning": "4"}
+
+data: {"type": "reasoning", "reasoning": "."}
+
+data: {"type": "reasoning", "reasoning": " "}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "基础"}
+
+data: {"type": "reasoning", "reasoning": "："}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "者"}
+
+data: {"type": "reasoning", "reasoning": "及"}
+
+data: {"type": "reasoning", "reasoning": "团队"}
+
+data: {"type": "reasoning", "reasoning": "是否有"}
+
+data: {"type": "reasoning", "reasoning": "相关"}
+
+data: {"type": "reasoning", "reasoning": "前期"}
+
+data: {"type": "reasoning", "reasoning": "工作"}
+
+data: {"type": "reasoning", "reasoning": "积累"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否有"}
+
+data: {"type": "reasoning", "reasoning": "足够的"}
+
+data: {"type": "reasoning", "reasoning": "条件和"}
+
+data: {"type": "reasoning", "reasoning": "能力"}
+
+data: {"type": "reasoning", "reasoning": "完成"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "。\n"}
+
+data: {"type": "reasoning", "reasoning": "5"}
+
+data: {"type": "reasoning", "reasoning": "."}
+
+data: {"type": "reasoning", "reasoning": " "}
+
+data: {"type": "reasoning", "reasoning": "预期"}
+
+data: {"type": "reasoning", "reasoning": "成果"}
+
+data: {"type": "reasoning", "reasoning": "："}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "具有"}
+
+data: {"type": "reasoning", "reasoning": "可"}
+
+data: {"type": "reasoning", "reasoning": "检验"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "是否"}
+
+data: {"type": "reasoning", "reasoning": "对"}
+
+data: {"type": "reasoning", "reasoning": "学科"}
+
+data: {"type": "reasoning", "reasoning": "发展"}
+
+data: {"type": "reasoning", "reasoning": "有"}
+
+data: {"type": "reasoning", "reasoning": "贡献"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "由于"}
+
+data: {"type": "reasoning", "reasoning": "缺乏"}
+
+data: {"type": "reasoning", "reasoning": "具体"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "我需要"}
+
+data: {"type": "reasoning", "reasoning": "基于"}
+
+data: {"type": "reasoning", "reasoning": "已有"}
+
+data: {"type": "reasoning", "reasoning": "信息"}
+
+data: {"type": "reasoning", "reasoning": "给出"}
+
+data: {"type": "reasoning", "reasoning": "一般"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "建议"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "并"}
+
+data: {"type": "reasoning", "reasoning": "指出"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "补充"}
+
+data: {"type": "reasoning", "reasoning": "的部分"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "例如"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "建议"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "科学"}
+
+data: {"type": "reasoning", "reasoning": "问题"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "突出"}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "点"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "完善"}
+
+data: {"type": "reasoning", "reasoning": "研究方法"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "加强"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "基础"}
+
+data: {"type": "reasoning", "reasoning": "等"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "同时"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "存在的"}
+
+data: {"type": "reasoning", "reasoning": "不足"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "包括"}
+
+data: {"type": "reasoning", "reasoning": "研究"}
+
+data: {"type": "reasoning", "reasoning": "目标"}
+
+data: {"type": "reasoning", "reasoning": "不够"}
+
+data: {"type": "reasoning", "reasoning": "明确"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "方法"}
+
+data: {"type": "reasoning", "reasoning": "不够"}
+
+data: {"type": "reasoning", "reasoning": "具体"}
+
+data: {"type": "reasoning", "reasoning": "、"}
+
+data: {"type": "reasoning", "reasoning": "创新"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "不足"}
+
+data: {"type": "reasoning", "reasoning": "等"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "还需要"}
+
+data: {"type": "reasoning", "reasoning": "考虑"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "代码"}
+
+data: {"type": "reasoning", "reasoning": "对应的"}
+
+data: {"type": "reasoning", "reasoning": "学科"}
+
+data: {"type": "reasoning", "reasoning": "特点"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "比如"}
+
+data: {"type": "reasoning", "reasoning": "D"}
+
+data: {"type": "reasoning", "reasoning": "010"}
+
+data: {"type": "reasoning", "reasoning": "201"}
+
+data: {"type": "reasoning", "reasoning": "如果是"}
+
+data: {"type": "reasoning", "reasoning": "计算机"}
+
+data: {"type": "reasoning", "reasoning": "应用"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "可能需要"}
+
+data: {"type": "reasoning", "reasoning": "关注"}
+
+data: {"type": "reasoning", "reasoning": "实际"}
+
+data: {"type": "reasoning", "reasoning": "应用"}
+
+data: {"type": "reasoning", "reasoning": "价值"}
+
+data: {"type": "reasoning", "reasoning": "和技术"}
+
+data: {"type": "reasoning", "reasoning": "可行性"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "意见"}
+
+data: {"type": "reasoning", "reasoning": "需要"}
+
+data: {"type": "reasoning", "reasoning": "结合"}
+
+data: {"type": "reasoning", "reasoning": "学科"}
+
+data: {"type": "reasoning", "reasoning": "特点"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "指出"}
+
+data: {"type": "reasoning", "reasoning": "项目"}
+
+data: {"type": "reasoning", "reasoning": "在该"}
+
+data: {"type": "reasoning", "reasoning": "领域的"}
+
+data: {"type": "reasoning", "reasoning": "潜在"}
+
+data: {"type": "reasoning", "reasoning": "贡献"}
+
+data: {"type": "reasoning", "reasoning": "。\n\n"}
+
+data: {"type": "reasoning", "reasoning": "最后"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "可能需要"}
+
+data: {"type": "reasoning", "reasoning": "用户"}
+
+data: {"type": "reasoning", "reasoning": "提供"}
+
+data: {"type": "reasoning", "reasoning": "更"}
+
+data: {"type": "reasoning", "reasoning": "详细的"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "内容"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "以便"}
+
+data: {"type": "reasoning", "reasoning": "进行"}
+
+data: {"type": "reasoning", "reasoning": "深入"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "。"}
+
+data: {"type": "reasoning", "reasoning": "如果"}
+
+data: {"type": "reasoning", "reasoning": "无法"}
+
+data: {"type": "reasoning", "reasoning": "获取"}
+
+data: {"type": "reasoning", "reasoning": "更多"}
+
+data: {"type": "reasoning", "reasoning": "信息"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "评审"}
+
+data: {"type": "reasoning", "reasoning": "意见"}
+
+data: {"type": "reasoning", "reasoning": "可能"}
+
+data: {"type": "reasoning", "reasoning": "较为"}
+
+data: {"type": "reasoning", "reasoning": "笼"}
+
+data: {"type": "reasoning", "reasoning": "统"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "但"}
+
+data: {"type": "reasoning", "reasoning": "应"}
+
+data: {"type": "reasoning", "reasoning": "尽量"}
+
+data: {"type": "reasoning", "reasoning": "给出"}
+
+data: {"type": "reasoning", "reasoning": "建设"}
+
+data: {"type": "reasoning", "reasoning": "性"}
+
+data: {"type": "reasoning", "reasoning": "反馈"}
+
+data: {"type": "reasoning", "reasoning": "，"}
+
+data: {"type": "reasoning", "reasoning": "帮助"}
+
+data: {"type": "reasoning", "reasoning": "申请"}
+
+data: {"type": "reasoning", "reasoning": "者"}
+
+data: {"type": "reasoning", "reasoning": "改进"}
+
+data: {"type": "reasoning", "reasoning": "。\n"}
+
+data: {"type": "content", "content": "\n\n"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "国家"}
+
+data: {"type": "content", "content": "自然科学"}
+
+data: {"type": "content", "content": "基金"}
+
+data: {"type": "content", "content": "申请书"}
+
+data: {"type": "content", "content": "评审"}
+
+data: {"type": "content", "content": "意见"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "  \n"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "申请"}
+
+data: {"type": "content", "content": "代码"}
+
+data: {"type": "content", "content": "："}
+
+data: {"type": "content", "content": "D"}
+
+data: {"type": "content", "content": "010"}
+
+data: {"type": "content", "content": "201"}
+
+data: {"type": "content", "content": "（"}
+
+data: {"type": "content", "content": "信息"}
+
+data: {"type": "content", "content": "科学"}
+
+data: {"type": "content", "content": "部"}
+
+data: {"type": "content", "content": "·"}
+
+data: {"type": "content", "content": "计算机"}
+
+data: {"type": "content", "content": "科学"}
+
+data: {"type": "content", "content": "/"}
+
+data: {"type": "content", "content": "计算机"}
+
+data: {"type": "content", "content": "应用"}
+
+data: {"type": "content", "content": "技术"}
+
+data: {"type": "content", "content": "）"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "  \n"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "资助"}
+
+data: {"type": "content", "content": "类别"}
+
+data: {"type": "content", "content": "："}
+
+data: {"type": "content", "content": "面上"}
+
+data: {"type": "content", "content": "项目"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "  \n\n"}
+
+data: {"type": "content", "content": "---\n\n"}
+
+data: {"type": "content", "content": "###"}
+
+data: {"type": "content", "content": " **"}
+
+data: {"type": "content", "content": "总体"}
+
+data: {"type": "content", "content": "评价"}
+
+data: {"type": "content", "content": "**"}
+
+data: {"type": "content", "content": "  \n"}
+
+data: {"type": "content", "content": "由于"}
+
+data: {"type": "content", "content": "提供的"}
+
+data: {"type": "content", "content": "申请书"}
+
+data: {"type": "content", "content": "内容"}
+
+data: {"type": "content", "content": "较为"}
+
+data: {"type": "content", "content": "有限"}
+
+data: {"type": "content", "content": "（"}
+
+data: {"type": "content", "content": "仅"}
+
+data: {"type": "content", "content": "包含"}
+
+data: {"type": "content", "content": "封面"}
+
+data: {"type": "content", "content": "信息"}
+
+data: {"type": "content", "content": "），"}
+
+data: {"type": "content", "content": "无法"}
+
+data: {"type": "content", "content": "对"}
+
+data: {"type": "content", "content": "研究"}
+
+data: {"type": "content", "content": "内容"}
+
+data: {"type": "content", "content": "、"}
+
+data: {"type": "content", "content": "技术"}
+
+data: {"type": "content", "content": "方案"}
+
+data: {"type": "content", "content": "、"}
+
+data: {"type": "content", "content": "创新"}
+
+data: {"type": "content", "content": "性"}
+
+data: {"type": "content", "content": "等"}
+
+data: {"type": "content", "content": "核心"}
+
+data: {"type": "content", "content": "部分"}
+
+data: {"type": "content", "content": "进行"}
+
+data: {"type": "content", "content": "深入"}
+
+data: {"type": "content", "content": "评审"}
+
+data: {"type": "content", "content": "。"}
+
+data: {"type": "content", "content": "以下"}
+
+data: {"type": "content", "content": "基于"}
+
+data: {"type": "content", "content": "面上"}
+
+data: {"type": "content", "content": "项目"}
+
+data: {"type": "content", "content": "的一般"}
+
+data: {"type": "content", "content": "评审"}
+
+data: {"type": "content", "content": "标准"}
+
+data: {"type": "content", "content": "，"}
+
+data: {"type": "content", "content": "结合"}
+
+data: {"type": "content", "content": "申请"}
+
+data: {"type": "content", "content": "代码"}
+
+data: {"type": "content", "content": "D"}
+
+data: {"type": "content", "content": "010"}
+
+data: {"type": "content", "content": "201"}
+
+data: {"type": "content", "content": "的"}
+
+data: {"type": "content", "content": "学科"}
+
+data: {"type": "content", "content": "特点"}
+
+data: {"type": "content", "content": "，"}
+
+data: {"type": "content", "content": "提出"}
+
+data: {"type": "content", "content": "关键"}
+
+data: {"type": "content", "content": "评审"}
+
+data: {"type": "content", "content": "维"}
+
+data: {"type": "content", "content": "度和"}
+
+data: {"type": "content", "content": "改进"}
+
+data: {"type": "content", "content": "建议"}
+
+data: {"type": "complete", "message": "评审完成"}
+

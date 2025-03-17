@@ -8,6 +8,8 @@ env = os.getenv("ENV", "dev")
 yaml = YAML()
 logger = get_logger("util.conf")
 
+# 项目根目录路径
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def read_yaml(yaml_path: str) -> dict:
     with open(yaml_path, "r") as f_yaml:
@@ -17,9 +19,9 @@ def read_yaml(yaml_path: str) -> dict:
 
 def get_conf() -> dict:
     if env == "dev":
-        conf_path = "./conf/default.yaml"
+        conf_path = os.path.join(ROOT_DIR, "conf", "default.yaml")
     else:
-        conf_path = f"./conf/default.{env}.yaml"
+        conf_path = os.path.join(ROOT_DIR, "conf", f"default.{env}.yaml")
     conf_data = read_yaml(conf_path)
     conf_data["env"] = env
     return conf_data
