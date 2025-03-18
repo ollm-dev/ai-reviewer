@@ -2,6 +2,7 @@ import tempfile
 import os
 import datetime
 import pathlib
+import asyncio
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -108,6 +109,7 @@ def get_json_prompt():
 def extract_json_structure(paper_text):
     """
     从论文内容中提取JSON结构
+    
     
     Args:
         paper_text: 论文文本内容
@@ -259,15 +261,21 @@ async def review_paper_endpoint(request: ReviewRequest):
                     }
                     print(f"[DEBUG] reasoning: {reasoning_content}")
                     yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+                    # 添加小延迟确保流式传输效果
+                    await asyncio.sleep(0.01)
 
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
-                    data = {
-                        "type": "content",
-                        "content": content
-                    }
-                    print(f"[DEBUG] content: {content}")
-                    yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+                    # 逐字符输出，确保流式效果
+                    for char in content:
+                        data = {
+                            "type": "content",
+                            "content": char
+                        }
+                        print(f"[DEBUG] content char: {char}")
+                        yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+                        # 添加小延迟确保流式传输效果
+                        await asyncio.sleep(0.01)
 
             # 生成JSON结构
             json_structure = extract_json_structure(all_text)
@@ -305,6 +313,7 @@ async def review_paper_endpoint(request: ReviewRequest):
         generate(), 
         media_type='text/event-stream',
         headers={
+            'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
         }

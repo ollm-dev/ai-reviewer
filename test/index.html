@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文评审API测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .progress-bar-inner {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .response-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .reasoning-container, .content-container {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .content-container {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        .reasoning-container {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .json-container {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #272822;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>论文评审API测试</h1>
+        
+        <!-- 文件上传表单 -->
+        <div class="form-group">
+            <label for="pdfFile">选择PDF文件：</label>
+            <input type="file" id="pdfFile" accept=".pdf">
+        </div>
+        
+        <!-- 配置选项 -->
+        <div class="form-group">
+            <label for="numReviewers">评审者数量：</label>
+            <input type="number" id="numReviewers" value="1" min="1" max="3">
+        </div>
+        
+        <div class="form-group">
+            <label for="pageLimit">页数限制（0表示全部）：</label>
+            <input type="number" id="pageLimit" value="0" min="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="useClaude">
+                <input type="checkbox" id="useClaude"> 使用Claude模型
+            </label>
+        </div>
+        
+        <!-- 按钮 -->
+        <button id="uploadBtn">上传并评审</button>
+        
+        <!-- 进度条 -->
+        <div id="progressSection" style="display: none;">
+            <div class="progress-text" id="progressText">处理中...</div>
+            <div class="progress-bar">
+                <div class="progress-bar-inner" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <!-- 选项卡 -->
+        <div id="responseSection" style="display: none; margin-top: 20px;">
+            <div class="tab-container">
+                <div class="tab active" data-tab="review">评审结果</div>
+                <div class="tab" data-tab="reasoning">推理过程</div>
+                <div class="tab" data-tab="json">JSON结构</div>
+            </div>
+            
+            <!-- 评审结果 -->
+            <div class="tab-content active" id="reviewTab">
+                <div class="content-container" id="contentContainer"></div>
+            </div>
+            
+            <!-- 推理过程 -->
+            <div class="tab-content" id="reasoningTab">
+                <div class="reasoning-container" id="reasoningContainer"></div>
+            </div>
+            
+            <!-- JSON结构 -->
+            <div class="tab-content" id="jsonTab">
+                <div class="json-container" id="jsonContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 元素引用
+            const uploadBtn = document.getElementById('uploadBtn');
+            const pdfFile = document.getElementById('pdfFile');
+            const numReviewers = document.getElementById('numReviewers');
+            const pageLimit = document.getElementById('pageLimit');
+            const useClaude = document.getElementById('useClaude');
+            const progressSection = document.getElementById('progressSection');
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const responseSection = document.getElementById('responseSection');
+            const contentContainer = document.getElementById('contentContainer');
+            const reasoningContainer = document.getElementById('reasoningContainer');
+            const jsonContainer = document.getElementById('jsonContainer');
+            const tabs = document.querySelectorAll('.tab');
+            
+            // 切换选项卡的功能
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有选项卡的活动状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 设置当前选项卡为活动状态
+                    this.classList.add('active');
+                    const tabId = `${this.getAttribute('data-tab')}Tab`;
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 上传并评审按钮点击事件
+            uploadBtn.addEventListener('click', async function() {
+                if (!pdfFile.files.length) {
+                    alert('请先选择一个PDF文件');
+                    return;
+                }
+                
+                const file = pdfFile.files[0];
+                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                    alert('请选择PDF格式的文件');
+                    return;
+                }
+                
+                // 禁用按钮，显示进度条
+                uploadBtn.disabled = true;
+                progressSection.style.display = 'block';
+                responseSection.style.display = 'none';
+                contentContainer.textContent = '';
+                reasoningContainer.textContent = '';
+                jsonContainer.textContent = '';
+                
+                try {
+                    // 1. 上传文件
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    const uploadResponse = await fetch('http://localhost:5555/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!uploadResponse.ok) {
+                        throw new Error(`上传失败: ${uploadResponse.statusText}`);
+                    }
+                    
+                    const uploadResult = await uploadResponse.json();
+                    console.log('文件上传成功:', uploadResult);
+                    
+                    if (uploadResult.status !== 'success') {
+                        throw new Error(`上传失败: ${uploadResult.message}`);
+                    }
+                    
+                    // 2. 发送评审请求
+                    progressText.textContent = '开始评审...';
+                    
+                    const reviewData = {
+                        file_path: uploadResult.file_path,
+                        num_reviewers: parseInt(numReviewers.value),
+                        page_limit: parseInt(pageLimit.value),
+                        use_claude: useClaude.checked
+                    };
+                    
+                    const reviewResponse = await fetch('http://localhost:5555/review', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(reviewData)
+                    });
+                    
+                    if (!reviewResponse.ok) {
+                        throw new Error(`评审请求失败: ${reviewResponse.statusText}`);
+                    }
+                    
+                    // 3. 处理流式响应
+                    responseSection.style.display = 'block';
+                    const reader = reviewResponse.body.getReader();
+                    const decoder = new TextDecoder();
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        
+                        const text = decoder.decode(value);
+                        const lines = text.split('\n\n');
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                try {
+                                    const jsonStr = line.substring(6);
+                                    const data = JSON.parse(jsonStr);
+                                    
+                                    console.log('收到数据:', data);
+                                    
+                                    // 根据数据类型处理不同的响应
+                                    switch(data.type) {
+                                        case 'progress':
+                                            progressText.textContent = data.message;
+                                            const percentage = (data.current / data.total) * 100;
+                                            progressBar.style.width = `${percentage}%`;
+                                            break;
+                                            
+                                        case 'reasoning':
+                                            reasoningContainer.textContent += data.reasoning;
+                                            break;
+                                            
+                                        case 'content':
+                                            // 逐字显示内容
+                                            const displayText = data.content;
+                                            let index = 0;
+                                            const typeSpeed = 10; // 调整打字速度
+                                            
+                                            function typeText() {
+                                                if (index < displayText.length) {
+                                                    contentContainer.textContent += displayText.charAt(index);
+                                                    index++;
+                                                    setTimeout(typeText, typeSpeed);
+                                                }
+                                            }
+                                            
+                                            typeText();
+                                            break;
+                                            
+                                        case 'complete':
+                                            progressText.textContent = data.message;
+                                            progressBar.style.width = '100%';
+                                            
+                                            if (data.json_structure) {
+                                                try {
+                                                    const jsonObj = JSON.parse(data.json_structure);
+                                                    jsonContainer.textContent = JSON.stringify(jsonObj, null, 2);
+                                                } catch (jsonError) {
+                                                    console.error('JSON解析失败:', jsonError);
+                                                    jsonContainer.textContent = data.json_structure;
+                                                }
+                                            }
+                                            break;
+                                            
+                                        case 'error':
+                                            throw new Error(data.message);
+                                    }
+                                } catch (jsonError) {
+                                    console.error('解析响应JSON失败:', jsonError, line);
+                                }
+                            }
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('发生错误:', error);
+                    alert(`操作失败: ${error.message}`);
+                    progressText.textContent = `错误: ${error.message}`;
+                } finally {
+                    uploadBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
