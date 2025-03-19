@@ -133,7 +133,7 @@ def extract_json_structure(paper_text):
                 {"role": "user", "content": f"请从以下论文中提取结构化信息:\n\n{paper_text[:6000]}"}  # 限制文本长度
             ],
             temperature=0.1,  # 低温度以获得一致的结果
-            max_tokens=2000,
+            max_tokens=5000,
             response_format={"type": "json_object"}  # 确保返回JSON格式
         )
         
@@ -267,15 +267,15 @@ async def review_paper_endpoint(request: ReviewRequest):
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     # 逐字符输出，确保流式效果
-                    for char in content:
-                        data = {
-                            "type": "content",
-                            "content": char
-                        }
-                        print(f"[DEBUG] content char: {char}")
-                        yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
-                        # 添加小延迟确保流式传输效果
-                        await asyncio.sleep(0.07)
+                    # for char in content:
+                    data = {
+                        "type": "content",
+                        "content": content
+                    }
+                    print(f"[DEBUG] content char: {content}")
+                    yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
+                    # 添加小延迟确保流式传输效果
+                    await asyncio.sleep(0.07)
 
             # 生成JSON结构
             json_structure = extract_json_structure(all_text)
