@@ -262,7 +262,7 @@ async def review_paper_endpoint(request: ReviewRequest):
                     print(f"[DEBUG] reasoning: {reasoning_content}")
                     yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
                     # 添加小延迟确保流式传输效果
-                    await asyncio.sleep(0.07)
+                    await asyncio.sleep(0.01)
 
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
@@ -275,7 +275,7 @@ async def review_paper_endpoint(request: ReviewRequest):
                     print(f"[DEBUG] content char: {content}")
                     yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
                     # 添加小延迟确保流式传输效果
-                    await asyncio.sleep(0.07)
+                    await asyncio.sleep(0.01)
 
             # 生成JSON结构
             json_structure = extract_json_structure(all_text)
