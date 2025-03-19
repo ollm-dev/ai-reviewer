@@ -238,7 +238,7 @@ async def review_paper_endpoint(request: ReviewRequest):
             # 构建系统提示词，添加 Markdown 格式要求
             system_prompt = "你是一个专业的论文评审专家，请对以下论文进行评审："
             if markdown_prompt:
-                system_prompt = f"{markdown_prompt}\n\n{system_prompt}"
+                system_prompt = f"你的角色是:\n\n{system_prompt},你的输出格式需要遵循以下要求：{markdown_prompt}"
 
             response = client.chat.completions.create(
                 model="deepseek-r1-250120",
