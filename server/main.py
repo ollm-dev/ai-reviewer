@@ -13,4 +13,4 @@ logger = get_logger("server.main")
 
 if __name__ == '__main__':
     logger.info(f"启动服务，环境: {conf['env']}")
-    launch_app()
+    launch_app(conf["server"]["host"], conf["server"]["port"])
