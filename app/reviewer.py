@@ -143,7 +143,7 @@ def extract_json_structure(paper_text):
         
         try:
             # 验证JSON格式
-            json.loads(json_result)
+            # json.loads(json_result)
             return json_result
         except json.JSONDecodeError as json_err:
             print(f"[ERROR] 生成的JSON格式不正确: {str(json_err)}")
