@@ -13,7 +13,7 @@ ENV=prod python -m server.main
 ```shell
 ssh root@180.76.103.165 -p 6600
 
-tmux attach -t ai-reviewer
+tmux attach -t reviewer-api
 
 cd /root/project/ai-reviewer
 
