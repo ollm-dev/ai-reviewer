@@ -101,7 +101,7 @@ for line in response.iter_lines():
 data: {"type": "progress", "current": 1, "total": 10, "message": "正在处理第 1/10 页"}
 data: {"type": "reasoning", "reasoning": "这篇论文的研究方向具有一定的创新性……"}
 data: {"type": "content", "content": "总体而言，该论文在研究方法上存在一些不足……"}
-data: {"type": "complete", "message": "评审完成"}
+data: {"type": "complete", "message": "评审完成"，"json_structure": json_structure}
 ```
 - **错误处理**：
     - 若指定的文件路径不存在，返回状态码 `404` ，错误信息为 “文件不存在”。
