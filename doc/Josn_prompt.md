@@ -29,7 +29,7 @@
       options: ["熟悉", "较熟", "不熟悉"],
       required: true,
       aiRecommendation: "{{你来推荐的答案是：options中的一个选项}}",
-      aiReason: "{{比如：申请人在该领域有多年研究经验，发表过多篇相关高质量论文}}。"
+      aiReason: "{{举出原文依据，比如：申请人在该领域有多年研究经验，发表过多篇相关高质量论文}}。"
     },
     {
       id: "significance",
@@ -37,7 +37,7 @@
       options: ["优", "良", "中", "差"],
       required: true,
       aiRecommendation: "{{你来推荐的答案是：options中的一个选项 ，比如：优}}",
-      aiReason: "{{比如：项目以健康监测与情绪状态分析为基础，创新性公众监测及引导策略对当前社会具有重要影响。}}"
+      aiReason: "{{举出原文依据 ，比如：项目以健康监测与情绪状态分析为基础，创新性公众监测及引导策略对当前社会具有重要影响。}}"
     },
     {
       id: "relationshipExplanation",
@@ -46,7 +46,7 @@
       options: ["优先资助", "可资", "不予资助"],
       required: true,
       aiRecommendation: "{{你来推荐的答案是：options中的一个选项 , 比如 优先资助}}",
-      aiReason: "{{比如： 该研究方向符合国家重点发展方向，具有较强的社会和科学价值。}}"
+      aiReason: "{{举出原文依据，比如： 该研究方向符合国家重点发展方向，具有较强的社会和科学价值。}}"
     }
   ],
   
@@ -64,7 +64,7 @@
       title: "请详述该申请项目是否符合经济社会发展需求或科学前沿的重要科学问题？",
       placeholder: "请输入评价意见",
       required: true,
-      aiRecommendation: "{{ 这里需要 500-800 字建议}}",
+      aiRecommendation: "{{ 这里必须 500-800 字建议}}",
       minLength: 800
     },
     {
@@ -72,7 +72,7 @@
       title: "请评述申请项目所阐述的科学问题的创新性与预期成果的学术价值？",
       placeholder: "请输入评价意见",
       required: true,
-      aiRecommendation: "{{ 这里需要 500-800 字建议}}",
+      aiRecommendation: "{{ 这里必须 500-800 字建议}}",
       minLength: 800
     },
     {
@@ -80,7 +80,7 @@
       title: "请详述该申请项目的研究基础与可行性？如有可能，请对完善研究方案提出建议。",
       placeholder: "请输入评价意见",
       required: true,
-      aiRecommendation: "{{ 这里需要 500-800 字建议}}",
+      aiRecommendation: "{{ 这里必须 500-800 字建议}}",
       minLength: 800
     },
     {
@@ -88,7 +88,7 @@
       title: "其他建议",
       placeholder: "请输入其他建议",
       required: false,
-      aiRecommendation: "{{ 这里需要 500-800 字建议}}",
+      aiRecommendation: "{{ 这里必须 500-800 字建议}}",
       minLength: 800
     }
   ]
