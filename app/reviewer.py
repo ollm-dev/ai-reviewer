@@ -232,7 +232,7 @@ async def review_paper_endpoint(request: ReviewRequest):
                                 "message": f"正在处理第 {i + 1}/{pages_to_load} 页"
                             }
                             yield f"data: {json.dumps(progress, ensure_ascii=False)}\n\n"
-                            await asyncio.sleep(0.1)
+                            await asyncio.sleep(0.03)
                     except Exception as pdf_err:
                         print(f"[ERROR] PDF解析异常: {str(pdf_err)}")
                         import traceback
