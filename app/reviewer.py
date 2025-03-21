@@ -106,7 +106,7 @@ def get_json_prompt():
         return ""  # 如果读取失败，返回空字符串，不影响原有功能
 
 # 添加从论文内容提取JSON结构的函数
-def extract_json_structure(paper_text):
+async def extract_json_structure(paper_text):
     """
     从论文内容中提取JSON结构
     
@@ -122,7 +122,12 @@ def extract_json_structure(paper_text):
         json_prompt = get_json_prompt()
         if not json_prompt:
             print("[WARNING] 没有找到JSON提示词，无法生成结构化数据")
-            return "{}"  # 返回空JSON对象
+            error_msg = {
+                "type": "error",
+                "message": "没有找到JSON提示词，无法生成结构化数据"
+            }
+            yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+            return
         
         # 调用模型生成JSON结构
         print("[DEBUG] 开始生成JSON结构化数据")
@@ -130,30 +135,46 @@ def extract_json_structure(paper_text):
             model="deepseek-r1-250120",  # 使用与评审相同的模型
             messages=[
                 {"role": "system", "content": json_prompt},
-                {"role": "user", "content": f"请从以下论文中提取结构化信息:\n\n{paper_text[:6000]}"}  # 限制文本长度
+                {"role": "user", "content": f"请从以下论文中提取json结构化信息:\n\n{paper_text}"}  # 限制文本长度
             ],
             temperature=0.1,  # 低温度以获得一致的结果
-            max_tokens=5000,
-            response_format={"type": "json_object"}  # 确保返回JSON格式
+            stream=True
         )
-        
-        # 提取JSON结果
-        json_result = response.choices[0].message.content
-        print(f"[DEBUG] 生成的JSON结构: {json_result[:3000]}...")  # 只打印前3000字符
-        
-        try:
-            # 验证JSON格式
-            # json.loads(json_result)
-            return json_result
-        except json.JSONDecodeError as json_err:
-            print(f"[ERROR] 生成的JSON格式不正确: {str(json_err)}")
-            return "{}"  # 返回空JSON对象
-            
+        full_content = ""  # 用于收集完整JSON结构给前端渲染
+        for chunk in response:
+            if hasattr(chunk.choices[0].delta, 'content'):
+                content = chunk.choices[0].delta.content
+                full_content += content
+                json_result = {
+                    "type": "json_structure",
+                    "json_structure": content
+                }
+                yield f"data: {json.dumps(json_result, ensure_ascii=False)}\n\n"
+                print(f"[DEBUG] 生成的JSON结构: {json_result}")
+                await asyncio.sleep(0.01)
+        full_json_result = {
+            "type": "json_complete",
+            "json_structure": full_content
+        }
+        yield f"data: {json.dumps(full_json_result, ensure_ascii=False)}\n\n"
+        print(f"[DEBUG] 生成的JSON结构: {full_json_result}")  
+        # try:
+        #     # 验证JSON格式
+        #     # json.loads(json_result)
+        #     return json_result
+        # except json.JSONDecodeError as json_err:
+        #     print(f"[ERROR] 生成的JSON格式不正确: {str(json_err)}")
+        #     return "{}"  # 返回空JSON对象
     except Exception as e:
         print(f"[ERROR] 生成JSON结构异常: {str(e)}")
         import traceback
         print(f"[ERROR] JSON结构生成异常堆栈: {traceback.format_exc()}")
-        return "{}"  # 返回空JSON对象
+        error_msg = {
+            "type": "error",
+            "message": str(e)
+        }
+        yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+        return
 
 @app.post("/review")
 async def review_paper_endpoint(request: ReviewRequest):
@@ -211,6 +232,7 @@ async def review_paper_endpoint(request: ReviewRequest):
                                 "message": f"正在处理第 {i + 1}/{pages_to_load} 页"
                             }
                             yield f"data: {json.dumps(progress, ensure_ascii=False)}\n\n"
+                            await asyncio.sleep(0.1)
                     except Exception as pdf_err:
                         print(f"[ERROR] PDF解析异常: {str(pdf_err)}")
                         import traceback
@@ -245,12 +267,14 @@ async def review_paper_endpoint(request: ReviewRequest):
                 messages=[
                     {"role": "system", "content": system_prompt + all_text},
                 ],
-                temperature=1,
-                max_tokens=5000,
+                temperature=0.1,
+                #max_tokens=8000,
                 stream=True
             )
             
             # 处理流式响应
+            full_content = ""  # 用于收集完整内容以生成JSON结构
+            
             for chunk in response:
                 # 获取思考过程和最终回答
                 if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
@@ -266,8 +290,7 @@ async def review_paper_endpoint(request: ReviewRequest):
 
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
-                    # 逐字符输出，确保流式效果
-                    # for char in content:
+                    full_content += content  # 收集完整内容
                     data = {
                         "type": "content",
                         "content": content
@@ -276,18 +299,19 @@ async def review_paper_endpoint(request: ReviewRequest):
                     yield f"data: {json.dumps(data, ensure_ascii=False)}\n\n"
                     # 添加小延迟确保流式传输效果
                     await asyncio.sleep(0.01)
+                   
 
-            # 生成JSON结构
-            json_structure = extract_json_structure(all_text)
-            
             # 发送完成信息
             complete_msg = {
                 "type": "complete",
                 "message": "评审完成",
-                "json_structure": json_structure
             }
             yield f"data: {json.dumps(complete_msg, ensure_ascii=False)}\n\n"
 
+            # json结构 流式输出 和 完整结构输出
+            # 使用 async for 而不是 await
+            async for json_chunk in extract_json_structure(all_text):
+                yield json_chunk
         except Exception as e:
             print(f"[ERROR] 评审处理异常: {str(e)}")
             import traceback

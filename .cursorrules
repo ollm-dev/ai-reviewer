@@ -1,40 +1,37 @@
-# Project: Next.js Boilerplate Application
-
-
 
 # backend 
 
 你现在是一个python 后端工程师 ， 需要根据前端工程师 ， 实现前端功能 ， 下面是你自己写的后端api文档 ， 请根据文档 ， 把握项目
 
+# 论文评审系统 API 文档
+
 ## 一、接口概述
-本 API 提供论文评审服务，包含文件上传和论文评审两个主要接口。用户可上传 PDF 格式的论文文件，然后通过评审接口获取论文的评审结果，评审结果以流式响应的形式返回。
+
+本 API 提供论文评审服务，包含文件上传和论文评审两个主要接口。用户可上传 PDF 格式的论文文件，然后通过评审接口获取论文的评审结果，评审结果以流式响应的形式返回，包括评审内容和结构化 JSON 数据。
 
 ## 二、接口详情
 
 ### （一）上传 PDF 文件接口
+
 - **接口地址**：`/upload`
 - **请求方法**：`POST`
 - **请求参数**：
-|参数名|类型|描述|是否必填|
-| ---- | ---- | ---- | ---- |
-|file|UploadFile|待上传的 PDF 文件|是|
-- **请求示例**：
-```python
-import requests
 
-url = "http://localhost:5555/upload"
-files = {'file': open('example.pdf', 'rb')}
-response = requests.post(url, files=files)
-print(response.json())
-```
+| 参数名 | 类型 | 描述 | 是否必填 |
+| ------ | ---- | ---- | -------- |
+| file | UploadFile | 待上传的 PDF 文件 | 是 |
+
 - **响应参数**：
-|参数名|类型|描述|
-| ---- | ---- | ---- |
-|status|str|上传状态，取值为 "success" 或其他错误提示|
-|message|str|上传结果提示信息|
-|file_path|str|临时保存的文件路径|
-|file_name|str|上传的文件名|
+
+| 参数名 | 类型 | 描述 |
+| ------ | ---- | ---- |
+| status | str | 上传状态，取值为 "success" 或其他错误提示 |
+| message | str | 上传结果提示信息 |
+| file_path | str | 临时保存的文件路径 |
+| file_name | str | 上传的文件名 |
+
 - **响应示例**：
+
 ```json
 {
     "status": "success",
@@ -43,80 +40,120 @@ print(response.json())
     "file_name": "example.pdf"
 }
 ```
+
 - **错误处理**：
-    - 若上传的文件不是 PDF 格式，返回状态码 `400` ，错误信息为 “只接受 PDF 文件”。
-    - 若上传过程中出现其他异常，返回状态码 `500` ，错误信息为具体的异常描述。
+  - 若上传的文件不是 PDF 格式，返回状态码 `400`，错误信息为 "只接受 PDF 文件"。
+  - 若上传过程中出现其他异常，返回状态码 `500`，错误信息为具体的异常描述。
 
 ### （二）执行论文评审接口
+
 - **接口地址**：`/review`
 - **请求方法**：`POST`
 - **请求参数（JSON 格式）**：
-|参数名|类型|描述|是否必填|
-| ---- | ---- | ---- | ---- |
-|file_path|str|已上传文件的路径|是|
-|num_reviewers|int|评审者数量，默认为 1|否|
-|page_limit|int|要处理的页数限制，为 0 时处理全部页数，默认为 0|否|
-|use_claude|bool|是否使用 Claude 模型，默认为 False|否|
-- **请求示例**：
-```python
-import requests
 
-url = "http://localhost:5555/review"
-data = {
-    "file_path": "/tmp/temp_20240101_120000_example.pdf",
-    "num_reviewers": 1,
-    "page_limit": 0,
-    "use_claude": false
-}
-response = requests.post(url, json=data)
-for line in response.iter_lines():
-    if line:
-        print(line.decode('utf-8'))
-```
+| 参数名 | 类型 | 描述 | 是否必填 |
+| ------ | ---- | ---- | -------- |
+| file_path | str | 已上传文件的路径 | 是 |
+| num_reviewers | int | 评审者数量，默认为 1 | 否 |
+| page_limit | int | 要处理的页数限制，为 0 时处理全部页数，默认为 0 | 否 |
+| use_claude | bool | 是否使用 Claude 模型，默认为 False | 否 |
+
 - **响应参数（流式响应，每行数据为 JSON 格式字符串，以 `data:` 开头）**：
-    - **进度信息**：
-|参数名|类型|描述|
-| ---- | ---- | ---- |
-|type|str|类型，取值为 "progress"|
-|current|int|当前处理的页数|
-|total|int|总处理页数|
-|message|str|进度提示信息|
-    - **推理信息**：
-|参数名|类型|描述|
-| ---- | ---- | ---- |
-|type|str|类型，取值为 "reasoning"|
-|reasoning|str|AI 评审的思考过程内容|
-    - **内容信息**：
-|参数名|类型|描述|
-| ---- | ---- | ---- |
-|type|str|类型，取值为 "content"|
-|content|str|AI 评审的最终回答内容|
-    - **完成信息**：
-|参数名|类型|描述|
-| ---- | ---- | ---- |
-|type|str|类型，取值为 "complete"|
-|message|str|评审完成提示信息|
+
+  - **进度信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "progress" |
+  | current | int | 当前处理的页数 |
+  | total | int | 总处理页数 |
+  | message | str | 进度提示信息 |
+  
+  - **推理信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "reasoning" |
+  | reasoning | str | AI 评审的思考过程内容 |
+  
+  - **内容信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "content" |
+  | content | str | AI 评审的最终回答内容 |
+  
+  - **JSON 结构更新信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "json_update" |
+  | partial_structure | str | 部分 JSON 结构化数据 |
+  
+  - **JSON 结构信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "json_structure" |
+  | json_structure | str | JSON 结构化数据片段 |
+  
+  - **JSON 完整结构信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "json_complete" |
+  | json_structure | str | 完整的 JSON 结构化数据 |
+  
+  - **完成信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "complete" |
+  | message | str | 评审完成提示信息 |
+  
+  - **错误信息**：
+  
+  | 参数名 | 类型 | 描述 |
+  | ------ | ---- | ---- |
+  | type | str | 类型，取值为 "error" |
+  | message | str | 错误信息 |
+
 - **响应示例**：
+
 ```
 data: {"type": "progress", "current": 1, "total": 10, "message": "正在处理第 1/10 页"}
 data: {"type": "reasoning", "reasoning": "这篇论文的研究方向具有一定的创新性……"}
 data: {"type": "content", "content": "总体而言，该论文在研究方法上存在一些不足……"}
-data: {"type": "complete", "message": "评审完成"，"json_structure": json_structure}
+data: {"type": "json_structure", "json_structure": "\"abstract\": \"论文摘要内容...\""}
+data: {"type": "json_complete", "json_structure": "{\"title\": \"论文标题\", \"authors\": [\"作者1\", \"作者2\"], \"abstract\": \"论文摘要内容...\", \"keywords\": [\"关键词1\", \"关键词2\"], \"evaluation\": {\"originality\": 4, \"significance\": 3, \"validity\": 4, \"organization\": 3, \"clarity\": 4, \"recommendation\": \"接受\"}}"}
+data: {"type": "complete", "message": "评审完成"}
 ```
+
 - **错误处理**：
-    - 若指定的文件路径不存在，返回状态码 `404` ，错误信息为 “文件不存在”。
-    - 若评审过程中出现文件读取异常、PDF 解析异常或其他异常，会在流式响应中返回类型为 "error" 的错误信息，包含具体的异常描述。
+  - 若指定的文件路径不存在，返回状态码 `404`，错误信息为 "文件不存在"。
+  - 若评审过程中出现文件读取异常、PDF 解析异常或其他异常，会在流式响应中返回类型为 "error" 的错误信息，包含具体的异常描述。
 
 ## 三、其他说明
+
 ### （一）环境依赖
-本 API 基于 FastAPI 框架开发，依赖的 Python 库包括 `fastapi`、`PyPDF2`、`openai` 等。
+
+本 API 基于 FastAPI 框架开发，依赖的 Python 库包括：
+- `fastapi`：Web 框架
+- `PyPDF2`：PDF 解析
+- `openai`：AI 模型调用
+- `uvicorn`：ASGI 服务器
 
 ### （二）跨域设置
+
 已添加 CORS 中间件，允许所有源、所有方法和所有头的跨域请求。
 
 ### （三）临时文件处理
-上传的文件会保存为临时文件，评审完成后会尝试清理该临时文件，若清理失败会记录错误日志。 
 
+上传的文件会保存为临时文件，评审完成后会自动清理该临时文件，若清理失败会记录错误日志。
+
+### （四）JSON 结构化数据
+
+系统会从论文内容中提取结构化的 JSON 数据，包含论文的标题、作者、摘要、关键词、评分等信息，便于前端展示和处理。JSON 结构会在评审过程中逐步生成并通过流式响应发送给前端。
 
 
 
