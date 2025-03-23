@@ -23,7 +23,7 @@ def get_logger(name: str = "project", level: str = "info", save_file: bool = Fal
         logger.addHandler(sh)
 
         if save_file:
-            log_path = log_path_util(name)
+            log_path = log_path_utils(name)
             fh = logging.FileHandler(log_path)
             fh.setLevel(logging.INFO)
             fh_fmt = logging.Formatter("%(asctime)-15s [%(filename)s] %(levelname)s %(lineno)d: %(message)s")
@@ -33,7 +33,7 @@ def get_logger(name: str = "project", level: str = "info", save_file: bool = Fal
     return logger
 
 
-def log_path_util(name: str) -> str:
+def log_path_utils(name: str) -> str:
     day = time.strftime("%Y-%m-%d", time.localtime())
     log_path = pathlib.Path(f"./log/{day}")
     if not log_path.exists():

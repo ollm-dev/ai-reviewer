@@ -2,11 +2,11 @@ import os
 
 from ruamel.yaml import YAML
 
-from util.log import get_logger
+from utils.log import get_logger
 
 env = os.getenv("ENV", "dev")
 yaml = YAML()
-logger = get_logger("util.conf")
+logger = get_logger("utils.conf")
 
 # 项目根目录路径
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
