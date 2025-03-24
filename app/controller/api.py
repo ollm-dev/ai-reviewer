@@ -158,25 +158,46 @@ async def review_paper_endpoint(request: ReviewRequest):
                     all_text, result_queue
                 )))
                 
-                # 持续从队列获取结果并传递给客户端
-                while tasks or not result_queue.empty():
-                    # 检查是否有已完成的任务
-                    done_tasks = []
-                    for task in tasks:
-                        if task.done():
-                            done_tasks.append(task)
+                # 优化的队列处理机制，避免卡顿
+                pending_tasks = set(tasks)
+                
+                # 使用更高效的任务处理方式
+                while pending_tasks or not result_queue.empty():
+                    # 创建两个并行操作：等待任务完成和获取队列结果
+                    queue_get = asyncio.create_task(result_queue.get()) if not result_queue.empty() else None
                     
-                    # 从任务列表中移除已完成的任务
-                    for task in done_tasks:
-                        tasks.remove(task)
+                    # 如果队列为空且还有任务在运行，则等待任何任务完成
+                    if not queue_get and pending_tasks:
+                        # 等待任何任务完成，但设置超时以避免长时间阻塞
+                        done, pending_tasks = await asyncio.wait(
+                            pending_tasks, 
+                            timeout=0.01,  # 短超时，避免长时间阻塞
+                            return_when=asyncio.FIRST_COMPLETED
+                        )
+                        # 继续下一轮循环
+                        continue
                     
-                    # 如果队列中有结果，立即返回
-                    if not result_queue.empty():
-                        message = await result_queue.get()
-                        yield message
-                    # 如果队列为空但任务仍在进行，等待短暂时间
-                    elif tasks:
-                        await asyncio.sleep(0.01)  # 减少等待时间，增加响应速度
+                    # 如果队列中有数据，优先处理队列数据
+                    if queue_get:
+                        try:
+                            # 等待队列数据，但设置超时避免阻塞
+                            message = await asyncio.wait_for(queue_get, timeout=0.05)
+                            yield message
+                        except asyncio.TimeoutError:
+                            # 超时则继续下一轮循环
+                            continue
+                        except Exception as e:
+                            print(f"[ERROR] 队列数据处理异常: {str(e)}")
+                    else:
+                        # 没有任务也没有队列数据，退出循环
+                        break
+                
+                # 发送完成消息
+                complete_msg = {
+                    "type": "complete",
+                    "message": "评审完成"
+                }
+                yield f"data: {json.dumps(complete_msg, ensure_ascii=False)}\n\n"
                 
             except Exception as e:
                 print(f"[ERROR] 处理异常: {str(e)}")
@@ -216,6 +237,7 @@ async def review_paper_endpoint(request: ReviewRequest):
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
             'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',  # 禁用Nginx缓冲，提高流式响应性能
         }
     )
 

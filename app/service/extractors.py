@@ -5,7 +5,7 @@ import PyPDF2
 
 async def extract_pdf_text(pdf_path, page_limit):
     """
-    异步提取PDF文本内容
+    异步提取PDF文本内容，优化版本
     
     Args:
         pdf_path: PDF文件路径
@@ -28,25 +28,39 @@ async def extract_pdf_text(pdf_path, page_limit):
             if page_limit > 0 and page_limit < num_pages:
                 pages_to_load = page_limit
             
-            # 提取文本
-            for i in range(pages_to_load):
-                print(f"[DEBUG] 正在提取第 {i+1}/{pages_to_load} 页")
-                page = reader.pages[i]
-                text = page.extract_text()
-                all_text += text + "\n\n"
+            # 优化：使用批量处理，每次处理多页
+            batch_size = min(5, pages_to_load)  # 每批最多处理5页，或者实际页数
+            page_texts = []  # 存储每页文本
+            
+            # 预先准备页面索引列表
+            page_indices = range(pages_to_load)
+            
+            for batch_start in range(0, pages_to_load, batch_size):
+                batch_end = min(batch_start + batch_size, pages_to_load)
+                batch_pages = list(page_indices[batch_start:batch_end])
                 
-                # 生成进度信息
-                progress = {
-                    "type": "progress",
-                    "current": i + 1,
-                    "total": pages_to_load,
-                    "message": f"正在处理第 {i + 1}/{pages_to_load} 页"
-                }
-                # 直接生成进度消息
-                yield f"data: {json.dumps(progress, ensure_ascii=False)}\n\n"
+                # 处理当前批次的页面
+                for i in batch_pages:
+                    print(f"[DEBUG] 正在提取第 {i+1}/{pages_to_load} 页")
+                    page = reader.pages[i]
+                    text = page.extract_text()
+                    page_texts.append(text)
+                    
+                    # 生成进度信息并立即返回，保持UI响应
+                    progress = {
+                        "type": "progress",
+                        "current": i + 1,
+                        "total": pages_to_load,
+                        "message": f"正在处理第 {i + 1}/{pages_to_load} 页"
+                    }
+                    # 直接生成进度消息
+                    yield f"data: {json.dumps(progress, ensure_ascii=False)}\n\n"
                 
-                # 适当地让出控制权
-                await asyncio.sleep(0.001)
+                # 批次处理之间的间隔非常短，只是让出控制权
+                await asyncio.sleep(0.0001)
+            
+            # 合并所有页面的文本
+            all_text = "\n\n".join(page_texts)
             
             # 最后yield文本内容，而不是return
             text_result = {

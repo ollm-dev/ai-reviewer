@@ -42,29 +42,62 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             stream=True
         )
         
+        # 优化：批量处理响应以减少频繁的队列操作
+        batch_size = 3  # 批量处理大小
+        batch_content = ""
+        
         if task_type == "推理过程":
-             # 处理响应
+            # 处理响应
             for chunk in response:
                 if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
-                    data = {
-                        "type": "content",
-                        "content": content
-                    }
-                    await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
-                    await asyncio.sleep(0.001)
+                    batch_content += content
+                    
+                    # 当批量内容达到一定大小或已经是最后一个块时才推送
+                    if len(batch_content) >= batch_size:
+                        data = {
+                            "type": "content",
+                            "content": batch_content
+                        }
+                        await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
+                        batch_content = ""  # 重置批量内容
+                        # 更小的sleep时间，减少延迟
+                        await asyncio.sleep(0.0005)
+            
+            # 发送剩余的内容
+            if batch_content:
+                data = {
+                    "type": "content",
+                    "content": batch_content
+                }
+                await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
 
         elif task_type == "评审内容":
-             # 处理响应
+            # 处理响应
             for chunk in response:
                 if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
                     content = chunk.choices[0].delta.reasoning_content
-                    data = {
-                        "type": "reasoning",
-                        "reasoning": content
-                    }
-                    await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
-                    await asyncio.sleep(0.001)
+                    batch_content += content
+                    
+                    # 当批量内容达到一定大小或已经是最后一个块时才推送
+                    if len(batch_content) >= batch_size:
+                        data = {
+                            "type": "reasoning",
+                            "reasoning": batch_content
+                        }
+                        await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
+                        batch_content = ""  # 重置批量内容
+                        # 更小的sleep时间，减少延迟
+                        await asyncio.sleep(0.0005)
+            
+            # 发送剩余的内容
+            if batch_content:
+                data = {
+                    "type": "reasoning",
+                    "reasoning": batch_content
+                }
+                await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
+            
             print(f"[DEBUG] {task_type}任务完成")
     except Exception as e:
         import traceback
@@ -136,16 +169,33 @@ async def process_json_task(paper_text, result_queue):
         )
         
         full_content = ""
+        batch_content = ""
+        batch_size = 10  # JSON内容可以使用更大的批量大小
+        
         for chunk in response:
             if hasattr(chunk.choices[0].delta, 'content'):
                 content = chunk.choices[0].delta.content
                 full_content += content
-                json_result = {
-                    "type": "json_structure",
-                    "json_structure": content
-                }
-                await result_queue.put(f"data: {json.dumps(json_result, ensure_ascii=False)}\n\n")
-                await asyncio.sleep(0.001)
+                batch_content += content
+                
+                # 当批量内容达到一定大小时才推送
+                if len(batch_content) >= batch_size:
+                    json_result = {
+                        "type": "json_structure",
+                        "json_structure": batch_content
+                    }
+                    await result_queue.put(f"data: {json.dumps(json_result, ensure_ascii=False)}\n\n")
+                    batch_content = ""  # 重置批量内容
+                    # 更小的sleep时间，减少延迟
+                    await asyncio.sleep(0.0005)
+        
+        # 发送剩余的内容
+        if batch_content:
+            json_result = {
+                "type": "json_structure",
+                "json_structure": batch_content
+            }
+            await result_queue.put(f"data: {json.dumps(json_result, ensure_ascii=False)}\n\n")
         
         # 输出完整JSON结构
         full_json_result = {
