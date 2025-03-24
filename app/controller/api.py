@@ -146,6 +146,33 @@ async def review_paper_endpoint(request: ReviewRequest):
                 result_queue = asyncio.Queue()
                 prompt = get_markdown_prompt()
 
+                # 创建任务完成标志
+                tasks_complete = {"reasoning": False, "content": False, "json": False}
+                # 创建异步事件以通知队列处理完成
+                processing_complete = asyncio.Event()
+
+                # 定义用于从队列获取数据并流式返回的协程
+                async def stream_results():
+                    while not (tasks_complete["reasoning"] and tasks_complete["content"] and tasks_complete["json"]):
+                        try:
+                            # 尝试从队列获取数据，设置超时以避免阻塞
+                            try:
+                                item = await asyncio.wait_for(result_queue.get(), timeout=0.1)
+                                yield item
+                            except asyncio.TimeoutError:
+                                # 超时继续等待
+                                pass
+                        except Exception as e:
+                            print(f"[ERROR] 队列读取异常: {str(e)}")
+                    
+                    # 处理队列中剩余的数据
+                    while not result_queue.empty():
+                        try:
+                            item = result_queue.get_nowait()
+                            yield item
+                        except asyncio.QueueEmpty:
+                            break
+
                 # 定义在线程中执行的函数
                 def run_reasoning_task():
                     # 执行推理任务并将结果放入队列
@@ -153,25 +180,20 @@ async def review_paper_endpoint(request: ReviewRequest):
                     asyncio.set_event_loop(loop)
                     try:
                         async def _process():
-                            # 创建线程内部的队列
-                            thread_queue = asyncio.Queue()
-                            # 调用处理函数并传递队列
-                            await process_reasoning_task(all_text, thread_queue, prompt)
-                            
-                            # 从队列中获取所有结果
-                            results = []
-                            while not thread_queue.empty():
-                                try:
-                                    # 不等待，立即获取
-                                    item = thread_queue.get_nowait()
-                                    results.append(item)
-                                except asyncio.QueueEmpty:
-                                    break
-                            
-                            # 返回所有结果
-                            return results
-                            
-                        # 运行异步函数并获取结果
+                            try:
+                                # 调用处理函数并传递共享队列
+                                await process_reasoning_task(all_text, result_queue, prompt)
+                            except Exception as e:
+                                print(f"[ERROR] 推理任务异常: {str(e)}")
+                                error_msg = {
+                                    "type": "error",
+                                    "message": f"推理任务异常: {str(e)}"
+                                }
+                                await result_queue.put(f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n")
+                            finally:
+                                # 标记任务完成
+                                tasks_complete["reasoning"] = True
+                                
                         return loop.run_until_complete(_process())
                     finally:
                         loop.close()
@@ -182,25 +204,20 @@ async def review_paper_endpoint(request: ReviewRequest):
                     asyncio.set_event_loop(loop)
                     try:
                         async def _process():
-                            # 创建线程内部的队列
-                            thread_queue = asyncio.Queue()
-                            # 调用处理函数并传递队列
-                            await process_content_task(all_text, thread_queue, prompt)
-                            
-                            # 从队列中获取所有结果
-                            results = []
-                            while not thread_queue.empty():
-                                try:
-                                    # 不等待，立即获取
-                                    item = thread_queue.get_nowait()
-                                    results.append(item)
-                                except asyncio.QueueEmpty:
-                                    break
-                            
-                            # 返回所有结果
-                            return results
-                            
-                        # 运行异步函数并获取结果
+                            try:
+                                # 调用处理函数并传递共享队列
+                                await process_content_task(all_text, result_queue, prompt)
+                            except Exception as e:
+                                print(f"[ERROR] 内容任务异常: {str(e)}")
+                                error_msg = {
+                                    "type": "error",
+                                    "message": f"内容任务异常: {str(e)}"
+                                }
+                                await result_queue.put(f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n")
+                            finally:
+                                # 标记任务完成
+                                tasks_complete["content"] = True
+                                
                         return loop.run_until_complete(_process())
                     finally:
                         loop.close()
@@ -211,25 +228,20 @@ async def review_paper_endpoint(request: ReviewRequest):
                     asyncio.set_event_loop(loop)
                     try:
                         async def _process():
-                            # 创建线程内部的队列
-                            thread_queue = asyncio.Queue()
-                            # 调用处理函数并传递队列
-                            await process_json_task(all_text, thread_queue)
-                            
-                            # 从队列中获取所有结果
-                            results = []
-                            while not thread_queue.empty():
-                                try:
-                                    # 不等待，立即获取
-                                    item = thread_queue.get_nowait()
-                                    results.append(item)
-                                except asyncio.QueueEmpty:
-                                    break
-                            
-                            # 返回所有结果
-                            return results
-                            
-                        # 运行异步函数并获取结果
+                            try:
+                                # 调用处理函数并传递共享队列
+                                await process_json_task(all_text, result_queue)
+                            except Exception as e:
+                                print(f"[ERROR] JSON任务异常: {str(e)}")
+                                error_msg = {
+                                    "type": "error",
+                                    "message": f"JSON任务异常: {str(e)}"
+                                }
+                                await result_queue.put(f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n")
+                            finally:
+                                # 标记任务完成
+                                tasks_complete["json"] = True
+                                
                         return loop.run_until_complete(_process())
                     finally:
                         loop.close()
@@ -239,24 +251,9 @@ async def review_paper_endpoint(request: ReviewRequest):
                 content_future = thread_pool.submit(run_content_task)
                 json_future = thread_pool.submit(run_json_task)
                 
-                # 创建futures列表
-                futures = [reasoning_future, content_future, json_future]
-                
-                # 使用as_completed获取完成的任务结果
-                for future in concurrent.futures.as_completed(futures):
-                    try:
-                        results = future.result()
-                        if results:
-                            # 处理返回的结果列表
-                            for result in results:
-                                yield result
-                    except Exception as exc:
-                        print(f"[ERROR] 任务执行异常: {str(exc)}")
-                        error_msg = {
-                            "type": "error",
-                            "message": f"处理异常: {str(exc)}"
-                        }
-                        yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
+                # 开始实时处理结果流
+                async for result in stream_results():
+                    yield result
                 
                 # 发送完成消息
                 complete_msg = {
