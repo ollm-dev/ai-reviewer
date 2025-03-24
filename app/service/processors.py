@@ -42,27 +42,30 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             stream=True
         )
         
-        # 处理响应
-        for chunk in response:
-            if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
-                content = chunk.choices[0].delta.content
-                msg_type = "reasoning" if task_type == "推理过程" else "content"
-                data = {
-                    "type": msg_type,
-                    msg_type: content
-                }
-                await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
-                await asyncio.sleep(0.001)
-        
-        # 发送完成信息
-        complete_type = "reasoning_complete" if task_type == "推理过程" else "complete"
-        complete_msg = {
-            "type": complete_type,
-            "message": f"{task_type}完成"
-        }
-        await result_queue.put(f"data: {json.dumps(complete_msg, ensure_ascii=False)}\n\n")
-        print(f"[DEBUG] {task_type}任务完成")
-        
+        if task_type == "推理过程":
+             # 处理响应
+            for chunk in response:
+                if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
+                    content = chunk.choices[0].delta.content
+                    data = {
+                        "type": "content",
+                        "content": content
+                    }
+                    await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
+                    await asyncio.sleep(0.001)
+
+        elif task_type == "评审内容":
+             # 处理响应
+            for chunk in response:
+                if hasattr(chunk.choices[0].delta, 'reasoning_content') and chunk.choices[0].delta.reasoning_content:
+                    content = chunk.choices[0].delta.reasoning_content
+                    data = {
+                        "type": "reasoning",
+                        "reasoning": content
+                    }
+                    await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
+                    await asyncio.sleep(0.001)
+            print(f"[DEBUG] {task_type}任务完成")
     except Exception as e:
         import traceback
         print(f"[ERROR] {task_type}处理异常: {str(e)}")
@@ -72,6 +75,32 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             "message": str(e)
         }
         await result_queue.put(f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n")
+
+# 专门处理推理过程的函数
+async def process_reasoning_task(paper_text, result_queue, markdown_prompt=None):
+    """
+    处理论文推理过程任务
+    
+    Args:
+        paper_text: 论文文本内容
+        result_queue: 结果队列
+        markdown_prompt: Markdown格式要求
+    """
+    system_prompt = "你是一个专业的论文评审专家，请专注于思考和推理过程，对以下论文进行评审："
+    await process_task("推理过程", paper_text, result_queue, markdown_prompt, system_prompt)
+
+# 专门处理评审内容的函数
+async def process_content_task(paper_text, result_queue, markdown_prompt=None):
+    """
+    处理论文评审内容任务
+    
+    Args:
+        paper_text: 论文文本内容
+        result_queue: 结果队列
+        markdown_prompt: Markdown格式要求
+    """
+    system_prompt = "你是一个专业的论文评审专家，请专注于评审内容的输出，对以下论文进行评审："
+    await process_task("评审内容", paper_text, result_queue, markdown_prompt, system_prompt)
 
 # 处理JSON结构化任务的辅助函数        
 async def process_json_task(paper_text, result_queue):
@@ -100,7 +129,7 @@ async def process_json_task(paper_text, result_queue):
             model="deepseek-r1-250120",
             messages=[
                 {"role": "system", "content": json_prompt},
-                {"role": "user", "content": f"请从以下论文中提取json结构化信息:\n\n{paper_text}"}
+                {"role": "user", "content": f"请从以下论文中提取json结构化信息 , 务必注意json的格式！！！！:\n\n{paper_text}"}
             ],
             temperature=0.1,
             stream=True

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 # 导入其他模块
 from app.service.extractors import extract_pdf_text
-from app.service.processors import process_task, process_json_task
+from app.service.processors import process_task, process_json_task, process_reasoning_task, process_content_task
 
 # 创建 FastAPI 应用
 app = FastAPI(title="论文评审 API", description="提供论文评审服务的 API 接口")
@@ -144,15 +144,13 @@ async def review_paper_endpoint(request: ReviewRequest):
                 tasks = []
                 
                 # 添加推理任务
-                tasks.append(asyncio.create_task(process_task(
-                    "推理过程", all_text, result_queue, get_markdown_prompt(), 
-                    "你是一个专业的论文评审专家，请专注于思考和推理过程，对以下论文进行评审："
+                tasks.append(asyncio.create_task(process_reasoning_task(
+                    all_text, result_queue, get_markdown_prompt()
                 )))
                 
                 # 添加内容任务
-                tasks.append(asyncio.create_task(process_task(
-                    "评审内容", all_text, result_queue, get_markdown_prompt(),
-                    "你是一个专业的论文评审专家，请专注于评审内容的输出，对以下论文进行评审："
+                tasks.append(asyncio.create_task(process_content_task(
+                    all_text, result_queue, get_markdown_prompt()
                 )))
                 
                 # 添加JSON结构化任务
