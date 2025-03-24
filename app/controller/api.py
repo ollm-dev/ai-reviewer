@@ -5,6 +5,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import asyncio
+import concurrent.futures
+import json
 
 # 导入其他模块
 from app.service.extractors import extract_pdf_text
@@ -22,6 +25,8 @@ app.add_middleware(
     allow_headers=["*"],  # 允许所有头
 )
 
+# 全局线程池执行器
+thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
 
 class ReviewRequest(BaseModel):
@@ -139,58 +144,119 @@ async def review_paper_endpoint(request: ReviewRequest):
                 
                 # 创建处理队列和任务
                 result_queue = asyncio.Queue()
+                prompt = get_markdown_prompt()
+
+                # 定义在线程中执行的函数
+                def run_reasoning_task():
+                    # 执行推理任务并将结果放入队列
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        async def _process():
+                            # 创建线程内部的队列
+                            thread_queue = asyncio.Queue()
+                            # 调用处理函数并传递队列
+                            await process_reasoning_task(all_text, thread_queue, prompt)
+                            
+                            # 从队列中获取所有结果
+                            results = []
+                            while not thread_queue.empty():
+                                try:
+                                    # 不等待，立即获取
+                                    item = thread_queue.get_nowait()
+                                    results.append(item)
+                                except asyncio.QueueEmpty:
+                                    break
+                            
+                            # 返回所有结果
+                            return results
+                            
+                        # 运行异步函数并获取结果
+                        return loop.run_until_complete(_process())
+                    finally:
+                        loop.close()
                 
-                # 创建任务组
-                tasks = []
+                def run_content_task():
+                    # 执行内容任务并将结果放入队列
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        async def _process():
+                            # 创建线程内部的队列
+                            thread_queue = asyncio.Queue()
+                            # 调用处理函数并传递队列
+                            await process_content_task(all_text, thread_queue, prompt)
+                            
+                            # 从队列中获取所有结果
+                            results = []
+                            while not thread_queue.empty():
+                                try:
+                                    # 不等待，立即获取
+                                    item = thread_queue.get_nowait()
+                                    results.append(item)
+                                except asyncio.QueueEmpty:
+                                    break
+                            
+                            # 返回所有结果
+                            return results
+                            
+                        # 运行异步函数并获取结果
+                        return loop.run_until_complete(_process())
+                    finally:
+                        loop.close()
                 
-                # 添加推理任务
-                tasks.append(asyncio.create_task(process_reasoning_task(
-                    all_text, result_queue, get_markdown_prompt()
-                )))
+                def run_json_task():
+                    # 执行JSON结构化任务并将结果放入队列
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        async def _process():
+                            # 创建线程内部的队列
+                            thread_queue = asyncio.Queue()
+                            # 调用处理函数并传递队列
+                            await process_json_task(all_text, thread_queue)
+                            
+                            # 从队列中获取所有结果
+                            results = []
+                            while not thread_queue.empty():
+                                try:
+                                    # 不等待，立即获取
+                                    item = thread_queue.get_nowait()
+                                    results.append(item)
+                                except asyncio.QueueEmpty:
+                                    break
+                            
+                            # 返回所有结果
+                            return results
+                            
+                        # 运行异步函数并获取结果
+                        return loop.run_until_complete(_process())
+                    finally:
+                        loop.close()
                 
-                # 添加内容任务
-                tasks.append(asyncio.create_task(process_content_task(
-                    all_text, result_queue, get_markdown_prompt()
-                )))
+                # 提交任务到线程池
+                reasoning_future = thread_pool.submit(run_reasoning_task)
+                content_future = thread_pool.submit(run_content_task)
+                json_future = thread_pool.submit(run_json_task)
                 
-                # 添加JSON结构化任务
-                tasks.append(asyncio.create_task(process_json_task(
-                    all_text, result_queue
-                )))
+                # 创建futures列表
+                futures = [reasoning_future, content_future, json_future]
                 
-                # 优化的队列处理机制，避免卡顿
-                pending_tasks = set(tasks)
-                
-                # 使用更高效的任务处理方式
-                while pending_tasks or not result_queue.empty():
-                    # 创建两个并行操作：等待任务完成和获取队列结果
-                    queue_get = asyncio.create_task(result_queue.get()) if not result_queue.empty() else None
-                    
-                    # 如果队列为空且还有任务在运行，则等待任何任务完成
-                    if not queue_get and pending_tasks:
-                        # 等待任何任务完成，但设置超时以避免长时间阻塞
-                        done, pending_tasks = await asyncio.wait(
-                            pending_tasks, 
-                            timeout=0.01,  # 短超时，避免长时间阻塞
-                            return_when=asyncio.FIRST_COMPLETED
-                        )
-                        # 继续下一轮循环
-                        continue
-                    
-                    # 如果队列中有数据，优先处理队列数据
-                    if queue_get:
-                        try:
-                            # 等待队列数据，但设置超时避免阻塞
-                            message = await asyncio.wait_for(queue_get, timeout=0.05)
-                            yield message
-                        except asyncio.TimeoutError:
-                            # 超时则继续下一轮循环
-                            continue
-                        except Exception as e:
-                            print(f"[ERROR] 队列数据处理异常: {str(e)}")
-                    else:
-                        # 没有任务也没有队列数据，退出循环
-                        break
+                # 使用as_completed获取完成的任务结果
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        results = future.result()
+                        if results:
+                            # 处理返回的结果列表
+                            for result in results:
+                                yield result
+                    except Exception as exc:
+                        print(f"[ERROR] 任务执行异常: {str(exc)}")
+                        error_msg = {
+                            "type": "error",
+                            "message": f"处理异常: {str(exc)}"
+                        }
+                        yield f"data: {json.dumps(error_msg, ensure_ascii=False)}\n\n"
                 
                 # 发送完成消息
                 complete_msg = {
@@ -251,5 +317,13 @@ def launch_app(host="localhost", port=5555):
     """
     import uvicorn
     uvicorn.run(app, host=host, port=port) 
+
+# 应用关闭时关闭线程池
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("[INFO] 关闭线程池...")
+    thread_pool.shutdown(wait=False)
+    print("[INFO] 线程池已关闭")
+
 if __name__ == "__main__":
      launch_app()
