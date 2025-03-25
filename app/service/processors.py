@@ -38,7 +38,8 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             messages=[
                 {"role": "system", "content": system_prompt + paper_text},
             ],
-            temperature=0.1,
+            temperature=5,
+            max_tokens=10000,
             stream=True
         )
         

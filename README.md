@@ -5,7 +5,7 @@
 ```shell
 export no_proxy="localhost, 127.0.0.1, ::1"
 
-ENV=prod python -m server.main
+ENV=prod python -m main
 ```
 
 ## Deploy
@@ -25,5 +25,5 @@ conda activate py311
 pip install -r requirements.txt -i https://pypi.mirrors.ustc.edu.cn/simple
 
 # 记得确认 conf/default.prod.yaml 里面的配置
-ENV=prod python -m server.main
+ENV=prod python -m main
 ```
