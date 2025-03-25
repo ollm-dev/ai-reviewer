@@ -60,11 +60,11 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
                   
                     await asyncio.sleep(0.0005)
                # 输出完整JSON结构
-            content_result = {
-                "type": "content_complete",
-                "content_complete": "论文评审完成"
-            }
-            await result_queue.put(f"data: {json.dumps(content_result, ensure_ascii=False)}\n\n")  
+            # content_result = {
+            #     "type": "content_complete",
+            #     "content_complete": "论文评审完成"
+            # }
+            # await result_queue.put(f"data: {json.dumps(content_result, ensure_ascii=False)}\n\n")  
           
         elif task_type == "reasoning":
             # 处理响应
@@ -79,12 +79,12 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
                     await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
                     # 更小的sleep时间，减少延迟
                     await asyncio.sleep(0.0005)
-            # 输出完整JSON结构
-            reasoning_result = {
-                "type": "reasoning_complete",
-                "reasoning_complete": "论文评审完成"
-            }
-            await result_queue.put(f"data: {json.dumps(reasoning_result, ensure_ascii=False)}\n\n")  
+            # # 输出完整JSON结构
+            # reasoning_result = {
+            #     "type": "reasoning_complete",
+            #     "reasoning_complete": "论文评审完成"
+            # }
+            # await result_queue.put(f"data: {json.dumps(reasoning_result, ensure_ascii=False)}\n\n")  
             
 
             print(f"[DEBUG] {task_type}任务完成")
