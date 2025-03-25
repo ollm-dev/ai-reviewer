@@ -43,7 +43,7 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             stream=True
         )
         
-      
+        
         
         if task_type == "content":
             # 处理响应
@@ -59,7 +59,12 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
                     await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
                   
                     await asyncio.sleep(0.0005)
-            
+               # 输出完整JSON结构
+            content_result = {
+                "type": "content_complete",
+                "content_complete": "论文评审完成"
+            }
+            await result_queue.put(f"data: {json.dumps(content_result, ensure_ascii=False)}\n\n")  
           
         elif task_type == "reasoning":
             # 处理响应
@@ -72,10 +77,16 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
                         "reasoning": content
                     }
                     await result_queue.put(f"data: {json.dumps(data, ensure_ascii=False)}\n\n")
-                  
                     # 更小的sleep时间，减少延迟
                     await asyncio.sleep(0.0005)
+            # 输出完整JSON结构
+            reasoning_result = {
+                "type": "reasoning_complete",
+                "reasoning_complete": "论文评审完成"
+            }
+            await result_queue.put(f"data: {json.dumps(reasoning_result, ensure_ascii=False)}\n\n")  
             
+
             print(f"[DEBUG] {task_type}任务完成")
     except Exception as e:
         import traceback
@@ -142,7 +153,7 @@ async def process_json_task(paper_text, result_queue):
                 {"role": "system", "content": json_prompt},
                 {"role": "user", "content": f"请从以下论文中提取json结构化信息 , 务必注意json的格式！！！！:\n\n{paper_text}"}
             ],
-            temperature=0.2,
+            temperature=0.5,
             max_tokens=10000,
             stream=True
         )
@@ -165,11 +176,11 @@ async def process_json_task(paper_text, result_queue):
                     await asyncio.sleep(0.0005)
         
         # 输出完整JSON结构
-        full_json_result = {
+        json_result = {
             "type": "json_complete",
-            "json_structure": full_content
+            "json_complete": full_content
         }
-        await result_queue.put(f"data: {json.dumps(full_json_result, ensure_ascii=False)}\n\n")
+        await result_queue.put(f"data: {json.dumps(json_result, ensure_ascii=False)}\n\n")
         print(f"[DEBUG] JSON结构生成完成")
         
     except Exception as e:
