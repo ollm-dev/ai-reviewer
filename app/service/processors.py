@@ -38,7 +38,7 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
             messages=[
                 {"role": "system", "content": system_prompt + paper_text},
             ],
-            temperature=5.000000,
+            temperature=0.6,
             max_tokens=10000,
             stream=True
         )
@@ -142,7 +142,8 @@ async def process_json_task(paper_text, result_queue):
                 {"role": "system", "content": json_prompt},
                 {"role": "user", "content": f"请从以下论文中提取json结构化信息 , 务必注意json的格式！！！！:\n\n{paper_text}"}
             ],
-            temperature=0.1,
+            temperature=0.2,
+            max_tokens=10000,
             stream=True
         )
         
