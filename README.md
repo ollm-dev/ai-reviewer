@@ -3,6 +3,12 @@
 ## Getting started
 
 ```shell
+windows
+python -m venv venv
+venv\Scripts\activate
+python -m main
+
+
 export no_proxy="localhost, 127.0.0.1, ::1"
 
 ENV=prod python -m main
@@ -19,7 +25,7 @@ cd /root/project/ai-reviewer
 
 git pull
 
-conda activate py311
+conda activate py311 
 
 # 如果有依赖更新
 pip install -r requirements.txt -i https://pypi.mirrors.ustc.edu.cn/simple

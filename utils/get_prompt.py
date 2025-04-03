@@ -3,7 +3,7 @@ import os
 def get_json_prompt():
     """读取 JSON 格式化提示词"""
     try:
-        prompt_path = os.path.join("doc", "Josn_prompt.md")
+        prompt_path = os.path.join("doc", "prompt", "Json_prompt.md")
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read()
     except Exception as e:
@@ -13,7 +13,7 @@ def get_json_prompt():
 def get_markdown_prompt():
     """读取 Markdown 格式化提示词"""
     try:
-        prompt_path = os.path.join("doc", "markdown_prompt.md")
+        prompt_path = os.path.join("doc", "prompt", "markdown_prompt.md")
         with open(prompt_path, "r", encoding="utf-8") as f:
             return f.read()
     except Exception as e:
