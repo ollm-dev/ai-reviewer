@@ -36,7 +36,7 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
         response = client.chat.completions.create(
             model="deepseek-r1-250120",
             messages=[
-                {"role": "system", "content": system_prompt + paper_text + "推理过程使用英文回答！！！"},
+                {"role": "system", "content": system_prompt + paper_text + "Answer in English for the reasoning process!!!"},
             ],
             temperature=0.6,
             max_tokens=10000,
