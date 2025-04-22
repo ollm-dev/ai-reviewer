@@ -36,7 +36,7 @@ async def process_task(task_type, paper_text, result_queue, markdown_prompt, sys
         response = client.chat.completions.create(
             model="deepseek-r1-250120",
             messages=[
-                {"role": "system", "content": system_prompt + paper_text},
+                {"role": "system", "content": system_prompt + paper_text + "推理过程使用英文回答！！！"},
             ],
             temperature=0.6,
             max_tokens=10000,
@@ -108,7 +108,7 @@ async def process_reasoning_task(paper_text, result_queue, markdown_prompt=None)
         result_queue: 结果队列
         markdown_prompt: Markdown格式要求
     """
-    system_prompt = "你是一个专业的论文评审专家，请专注于思考和推理过程，对以下论文进行评审："
+    system_prompt = "你是一个专业的论文评审专家，请专注于思考和推理过程，对以下论文进行评审：, 全称使用英文回答！！！"
     await process_task("reasoning", paper_text, result_queue, markdown_prompt, system_prompt)
 
 # 专门处理评审内容的函数

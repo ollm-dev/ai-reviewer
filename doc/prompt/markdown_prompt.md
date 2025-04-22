@@ -1,3 +1,5 @@
-流式输出的结果 , 使用标准的Markdown格式输出
+Stream output results using standard Markdown format
 
-不要使用 "```"包裹 正文内容
+Do not wrap the main content with "```"
+
+All output MUST be in English
